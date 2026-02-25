@@ -1,0 +1,3 @@
+De opdracht wordt dan: maak een programma dat lift-gebruik kan monitoren. Zorg dat je meerdere type liften kan ondersteunen. Van een eenvoudige lift van 2 verdiepingen tot een gebouw als de Rotterdam waar  2 snel-liften en 6 ngewone liften zijn die 24 verdiepingen bedienen. Het doel is om te kunnen voorspellen waar de liften op ingesteld moeten worden zodat het gebruik geoptimaliseerd kan worden (en de wachttijden geminimaliseerd). Maak een programma dat het aanbod simuleert en maak een ander programma dat het gesimuleerde aanbod kan verwerken en visualiseren.
+
+ Kijk vooral naar de beoordelingscriteria (zie shl). Begin met een ontwerp (klassediagram of zoiets), laat zien dat je daarna een check op de Solid principes hebt gedaan (en waar nodig je ontwerp hebt aangepast).
