@@ -4,8 +4,8 @@ import sys
 def main():
     pygame.init()
 
-    WIDTH, HEIGHT = 800, 600
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    WIDTH, HEIGHT = screen.get_size()
     pygame.display.set_caption("Lift Simulator")
 
     clock = pygame.time.Clock()
