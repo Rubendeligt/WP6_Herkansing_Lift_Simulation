@@ -30,6 +30,14 @@ def main():
     BLACK = (20, 20, 20)
     GRAY = (120, 120, 120)
 
+    shaft_x = LEFT_MARGIN - 120
+    shaft_w = 80
+    lift_w = shaft_w - 20
+    lift_h = 30
+    lift_floor_pos = 0.0
+    lift_dir = 1
+    lift_speed_floors_per_sec = 0.8
+
     def draw_button(rect: pygame.Rect, text: str) -> None:
         mouse_pos = pygame.mouse.get_pos()
         color = (160, 160, 160) if rect.collidepoint(mouse_pos) else (200, 200, 200)
@@ -40,6 +48,11 @@ def main():
         label = FONT.render(text, True, (20, 20, 20))
         label_rect = label.get_rect(center=rect.center)
         screen.blit(label, label_rect)
+
+    def floor_to_y(floor_pos: float) -> float:
+        BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+        FLOOR_HEIGHT = BUILDING_HEIGHT / floors
+        return TOP_MARGIN + (floors - 1 - floor_pos) * FLOOR_HEIGHT
 
     def draw_building():
         """
@@ -55,11 +68,18 @@ def main():
             label = FONT.render(f"Floor {floors - floor - 1}", True, WHITE)
             screen.blit(label, (20, y - 10))
 
+    def draw_lift():
+        BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+        pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, BUILDING_HEIGHT), 2)
+
+        y = floor_to_y(lift_floor_pos)
+        cab = pygame.Rect(shaft_x + 10, y + 5, lift_w, lift_h)
+        pygame.draw.rect(screen, (80, 220, 120), cab, border_radius=8)
 
     running = True
 
     while running:
-        clock.tick(60)
+        dt = clock.tick(60) / 1000.0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -73,13 +93,26 @@ def main():
 
                 if btn_minus.collidepoint(mouse_pos):
                     floors = max(MIN_FLOORS, floors - 1)
+                    if lift_floor_pos > floors - 1:
+                        lift_floor_pos = float(floors - 1)
 
                 if btn_plus.collidepoint(mouse_pos):
                     floors = min(MAX_FLOORS, floors + 1)
 
+        lift_floor_pos += lift_dir * lift_speed_floors_per_sec * dt
+
+        if lift_floor_pos >= floors - 1:
+            lift_floor_pos = float(floors - 1)
+            lift_dir = -1
+
+        if lift_floor_pos <= 0:
+            lift_floor_pos = 0.0
+            lift_dir = 1
+
         screen.fill(BLACK)
 
         draw_building()
+        draw_lift()
         draw_button(btn_minus, "–")
         draw_button(btn_plus, "+")
 
