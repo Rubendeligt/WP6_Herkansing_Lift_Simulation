@@ -1,0 +1,29 @@
+import pygame
+
+MIN_FLOORS = 2
+MAX_FLOORS = 24
+
+TOP_MARGIN = 50
+BOTTOM_MARGIN = 50
+
+LEFT_MARGIN = 100
+RIGHT_MARGIN_DEFAULT = 700
+
+WHITE = (255, 255, 255)
+BLACK = (20, 20, 20)
+GRAY = (120, 120, 120)
+
+PERSON_RADIUS = 8
+PERSON_SPEED_PX_PER_SEC = 140
+
+SPAWN_CHANCE_PER_SEC = 0.8
+
+LIFT_SPEED_FLOORS_PER_SEC = 0.8
+
+BTN_W, BTN_H = 70, 60
+BTN_GAP = 12
+
+def make_buttons(WIDTH: int) -> tuple[pygame.Rect, pygame.Rect]:
+    btn_minus = pygame.Rect(WIDTH - 2 * BTN_W - BTN_GAP - 40, 30, BTN_W, BTN_H)
+    btn_plus  = pygame.Rect(WIDTH - BTN_W - 40, 30, BTN_W, BTN_H)
+    return btn_minus, btn_plus
