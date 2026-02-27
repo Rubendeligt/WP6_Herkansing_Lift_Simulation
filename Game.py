@@ -6,9 +6,36 @@ def main():
 
     WIDTH, HEIGHT = 800, 600
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("lifts")
+    pygame.display.set_caption("Lift Simulator")
 
     clock = pygame.time.Clock()
+    FONT = pygame.font.SysFont("arial", 18)
+
+    FLOORS = 10
+    TOP_MARGIN = 50
+    BOTTOM_MARGIN = 50
+    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+    FLOOR_HEIGHT = BUILDING_HEIGHT / FLOORS
+
+    LEFT_MARGIN = 100
+    RIGHT_MARGIN = 700
+
+    WHITE = (255, 255, 255)
+    BLACK = (20, 20, 20)
+    GRAY = (120, 120, 120)
+
+    def draw_building():
+        """
+        en toont het verdiepingsnummer.
+        """
+        for floor in range(FLOORS):
+            y = TOP_MARGIN + floor * FLOOR_HEIGHT
+
+            pygame.draw.line(screen, GRAY, (LEFT_MARGIN, y), (RIGHT_MARGIN, y), 2)
+            label = FONT.render(f"Floor {FLOORS - floor - 1}", True, WHITE)
+            screen.blit(label, (20, y - 10))
+
+
     running = True
 
     while running:
@@ -17,7 +44,10 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        screen.fill((30, 30, 30))
+
+            screen.fill(BLACK)
+
+            draw_building()
 
         pygame.display.flip()
 
