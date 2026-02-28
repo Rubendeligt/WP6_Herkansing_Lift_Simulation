@@ -35,7 +35,7 @@ def main():
     rng = random.Random(7)
 
     people = []
-    waiting_lines = { }
+    waiting_lines = {}
 
     rest_x = RIGHT_MARGIN + 180
     call_x = shaft_x + shaft_w + 25
@@ -66,10 +66,21 @@ def main():
                     floors = min(MAX_FLOORS, floors + 1)
                     waiting_lines.clear()
 
-        lift_floor_pos, lift_dir = update_lift(lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors)
+        lift_floor_pos, lift_dir = update_lift(
+            lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
+        )
+        next_person_id = maybe_spawn_person(
+            rng, people, dt, floors, HEIGHT, rest_x, next_person_id
+        )
+        lift_floor_int = int(round(lift_floor_pos))
+        lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03  
+        lift_x_for_people = shaft_x + shaft_w / 2
 
-        next_person_id = maybe_spawn_person(rng, people, dt, floors, HEIGHT, rest_x, next_person_id)
-        update_people(people, waiting_lines, dt, floors, HEIGHT, call_x)
+        update_people(
+            people, waiting_lines, dt, floors, HEIGHT, call_x,
+            lift_floor_int, lift_ready, int(lift_x_for_people)
+        )
+        people[:] = [p for p in people if not (p["state"] == "EXITING" and p["x"] > WIDTH + 50)]
 
         screen.fill(BLACK)
 
