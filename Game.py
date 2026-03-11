@@ -73,12 +73,17 @@ def main():
                     BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
                     lift_h = BUILDING_HEIGHT / floors
 
-        lift_floor_pos, lift_dir = update_lift(
-            lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
-        )
         next_person_id = maybe_spawn_person(
             rng, people, dt, floors, HEIGHT, rest_x, next_person_id
         )
+
+        someone_boarding = any(p["state"] == "BOARDING" for p in people)
+
+        if not someone_boarding:
+            lift_floor_pos, lift_dir = update_lift(
+                lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
+            )
+
         lift_floor_int = int(round(lift_floor_pos))
         lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
 
