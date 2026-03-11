@@ -35,7 +35,7 @@ def draw_lift(
     pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, BUILDING_HEIGHT), 2)
 
     y = floor_to_y(lift_floor_pos, floors, HEIGHT)
-    cab = pygame.Rect(shaft_x + 10, y + 5, lift_w, lift_h)
+    cab = pygame.Rect(shaft_x, y, lift_w, lift_h)
     pygame.draw.rect(screen, (80, 220, 120), cab, border_radius=8)
 
     label = FONT.render(str(passenger_count), True, (20, 20, 20))

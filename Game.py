@@ -2,7 +2,7 @@ import pygame
 import sys
 import random
 
-from Python.Variables import MIN_FLOORS, MAX_FLOORS, LEFT_MARGIN, RIGHT_MARGIN_DEFAULT, BLACK, LIFT_SPEED_FLOORS_PER_SEC, make_buttons
+from Python.Variables import MIN_FLOORS, MAX_FLOORS, LEFT_MARGIN, RIGHT_MARGIN_DEFAULT, BLACK, LIFT_SPEED_FLOORS_PER_SEC, make_buttons, TOP_MARGIN, BOTTOM_MARGIN
 from Python.Draw import draw_building, draw_button
 from Python.Lift import draw_lift, update_lift
 from Python.People import maybe_spawn_person, update_people, draw_people
@@ -26,8 +26,11 @@ def main():
 
     shaft_x = LEFT_MARGIN - 120
     shaft_w = 80
-    lift_w = shaft_w - 20
-    lift_h = 30
+    lift_w = shaft_w 
+
+    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+    lift_h = BUILDING_HEIGHT / floors
+
     lift_floor_pos = 0.0
     lift_dir = 1
     lift_speed_floors_per_sec = LIFT_SPEED_FLOORS_PER_SEC
@@ -61,10 +64,14 @@ def main():
                     waiting_lines.clear()
                     if lift_floor_pos > floors - 1:
                         lift_floor_pos = float(floors - 1)
+                    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+                    lift_h = BUILDING_HEIGHT / floors
 
                 if btn_plus.collidepoint(mouse_pos):
                     floors = min(MAX_FLOORS, floors + 1)
                     waiting_lines.clear()
+                    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+                    lift_h = BUILDING_HEIGHT / floors
 
         lift_floor_pos, lift_dir = update_lift(
             lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
@@ -86,21 +93,10 @@ def main():
 
         screen.fill(BLACK)
 
-        draw_building(screen, FONT, floors, HEIGHT, LEFT_MARGIN, RIGHT_MARGIN)
         passenger_count = sum(1 for p in people if p["state"] == "IN_LIFT")
 
-        draw_lift(
-    screen,
-    shaft_x,
-    shaft_w,
-    lift_w,
-    lift_h,
-    lift_floor_pos,
-    floors,
-    HEIGHT,
-    passenger_count,
-    FONT
-)
+        draw_building(screen, FONT, floors, HEIGHT, LEFT_MARGIN, RIGHT_MARGIN)
+        draw_lift(screen, shaft_x, shaft_w, lift_w, lift_h, lift_floor_pos, floors, HEIGHT, passenger_count, FONT)
         draw_people(screen, people)
         draw_button(screen, FONT, btn_minus, "–")
         draw_button(screen, FONT, btn_plus, "+")
