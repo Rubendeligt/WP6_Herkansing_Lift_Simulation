@@ -77,9 +77,12 @@ def main():
             rng, people, dt, floors, HEIGHT, rest_x, next_person_id
         )
 
-        someone_boarding = any(p["state"] == "BOARDING" for p in people)
+        lift_blocked = any(p["state"] == "BOARDING" for p in people) or any(
+        p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 40
+        for p in people
+)
 
-        if not someone_boarding:
+        if not lift_blocked:
             lift_floor_pos, lift_dir = update_lift(
                 lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
             )
@@ -87,7 +90,7 @@ def main():
         lift_floor_int = int(round(lift_floor_pos))
         lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
 
-        cab_x = shaft_x + 10
+        cab_x = shaft_x
         lift_x_for_people = cab_x + lift_w / 2
 
         update_people(
