@@ -73,8 +73,10 @@ def main():
             rng, people, dt, floors, HEIGHT, rest_x, next_person_id
         )
         lift_floor_int = int(round(lift_floor_pos))
-        lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03  
-        lift_x_for_people = shaft_x + shaft_w / 2
+        lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
+
+        cab_x = shaft_x + 10
+        lift_x_for_people = cab_x + lift_w / 2
 
         update_people(
             people, waiting_lines, dt, floors, HEIGHT, call_x,
