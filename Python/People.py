@@ -104,12 +104,13 @@ def update_people(
 
 def draw_people(screen: pygame.Surface, people: list) -> None:
     for p in people:
+        if p["state"] == "IN_LIFT":
+            continue
+
         if p["state"] == "WAITING":
             color = (255, 220, 90)
         elif p["state"] == "BOARDING":
             color = (255, 160, 90)
-        elif p["state"] == "IN_LIFT":
-            color = (90, 180, 255)
         else:
             color = (255, 255, 255)
 

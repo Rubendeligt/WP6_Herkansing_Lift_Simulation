@@ -19,10 +19,25 @@ def update_lift(lift_floor_pos: float, lift_dir: int, lift_speed_floors_per_sec:
 
     return lift_floor_pos, lift_dir
 
-def draw_lift(screen: pygame.Surface, shaft_x: int, shaft_w: int, lift_w: int, lift_h: int, lift_floor_pos: float, floors: int, HEIGHT: int) -> None:
+def draw_lift(
+    screen: pygame.Surface,
+    shaft_x: int,
+    shaft_w: int,
+    lift_w: int,
+    lift_h: int,
+    lift_floor_pos: float,
+    floors: int,
+    HEIGHT: int,
+    passenger_count: int,
+    FONT: pygame.font.Font
+) -> None:
     BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, BUILDING_HEIGHT), 2)
 
     y = floor_to_y(lift_floor_pos, floors, HEIGHT)
     cab = pygame.Rect(shaft_x + 10, y + 5, lift_w, lift_h)
     pygame.draw.rect(screen, (80, 220, 120), cab, border_radius=8)
+
+    label = FONT.render(str(passenger_count), True, (20, 20, 20))
+    label_rect = label.get_rect(center=cab.center)
+    screen.blit(label, label_rect)

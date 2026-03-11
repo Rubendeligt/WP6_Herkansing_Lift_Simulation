@@ -87,7 +87,20 @@ def main():
         screen.fill(BLACK)
 
         draw_building(screen, FONT, floors, HEIGHT, LEFT_MARGIN, RIGHT_MARGIN)
-        draw_lift(screen, shaft_x, shaft_w, lift_w, lift_h, lift_floor_pos, floors, HEIGHT)
+        passenger_count = sum(1 for p in people if p["state"] == "IN_LIFT")
+
+        draw_lift(
+    screen,
+    shaft_x,
+    shaft_w,
+    lift_w,
+    lift_h,
+    lift_floor_pos,
+    floors,
+    HEIGHT,
+    passenger_count,
+    FONT
+)
         draw_people(screen, people)
         draw_button(screen, FONT, btn_minus, "–")
         draw_button(screen, FONT, btn_plus, "+")
