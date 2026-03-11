@@ -5,7 +5,7 @@ from Python.Variables import TOP_MARGIN, BOTTOM_MARGIN, PERSON_RADIUS, PERSON_SP
 def floor_center_y(floor_index: int, floors: int, HEIGHT: int) -> float:
     BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     FLOOR_HEIGHT = BUILDING_HEIGHT / floors
-    return TOP_MARGIN + floor_index * FLOOR_HEIGHT + FLOOR_HEIGHT / 2
+    return TOP_MARGIN + (floors - 1 - floor_index) * FLOOR_HEIGHT + FLOOR_HEIGHT / 2
 
 def maybe_spawn_person(
     rng: random.Random,
@@ -30,7 +30,7 @@ def maybe_spawn_person(
             "dest": dest_floor,
             "x": float(rest_x),
             "y": float(y),
-            "state": "WALKING" 
+            "state": "WALKING"
         })
         next_person_id += 1
     return next_person_id
@@ -72,10 +72,25 @@ def update_people(
             p["x"] = float(call_x + idx * spacing)
 
             if lift_ready and p["floor"] == lift_floor:
+                p["state"] = "BOARDING"
+
+        if p["state"] == "BOARDING":
+            p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
+
+            if p["x"] > lift_x:
+                p["x"] -= PERSON_SPEED_PX_PER_SEC * dt
+                if p["x"] <= lift_x:
+                    p["x"] = float(lift_x)
+                    p["state"] = "IN_LIFT"
+            elif p["x"] < lift_x:
+                p["x"] += PERSON_SPEED_PX_PER_SEC * dt
+                if p["x"] >= lift_x:
+                    p["x"] = float(lift_x)
+                    p["state"] = "IN_LIFT"
+            else:
                 p["state"] = "IN_LIFT"
 
         if p["state"] == "IN_LIFT":
-            # “plakken” aan lift
             p["floor"] = lift_floor
             p["x"] = float(lift_x)
             p["y"] = float(floor_center_y(lift_floor, floors, HEIGHT))
@@ -89,10 +104,13 @@ def update_people(
 
 def draw_people(screen: pygame.Surface, people: list) -> None:
     for p in people:
+        if p["state"] == "IN_LIFT":
+            continue
+
         if p["state"] == "WAITING":
             color = (255, 220, 90)
-        elif p["state"] == "IN_LIFT":
-            color = (90, 180, 255)
+        elif p["state"] == "BOARDING":
+            color = (255, 160, 90)
         else:
             color = (255, 255, 255)
 
