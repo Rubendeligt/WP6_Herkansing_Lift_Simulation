@@ -2,10 +2,20 @@ import pygame
 import sys
 import random
 
-from Python.Variables import MIN_FLOORS, MAX_FLOORS, LEFT_MARGIN, RIGHT_MARGIN_DEFAULT, BLACK, LIFT_SPEED_FLOORS_PER_SEC, make_buttons, TOP_MARGIN, BOTTOM_MARGIN
+from Python.Variables import (
+    MIN_FLOORS,
+    MAX_FLOORS,
+    LEFT_MARGIN,
+    RIGHT_MARGIN_DEFAULT,
+    LIFT_SPEED_FLOORS_PER_SEC,
+    make_buttons,
+    TOP_MARGIN,
+    BOTTOM_MARGIN
+)
 from Python.Draw import draw_building, draw_button
 from Python.Lift import draw_lift, update_lift
 from Python.People import maybe_spawn_person, update_people, draw_people
+
 
 def main():
     pygame.init()
@@ -18,18 +28,18 @@ def main():
     clock = pygame.time.Clock()
     FONT = pygame.font.SysFont("arial", 18)
 
-    floors = 10
+    floors = 4
 
     btn_minus, btn_plus = make_buttons(WIDTH)
 
     RIGHT_MARGIN = RIGHT_MARGIN_DEFAULT
 
-    shaft_x = LEFT_MARGIN - 120
-    shaft_w = 80
-    lift_w = shaft_w 
+    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
 
-    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-    lift_h = BUILDING_HEIGHT / floors
+    shaft_x = LEFT_MARGIN + 50
+    shaft_w = 80
+    lift_w = shaft_w
+    lift_h = building_height / floors
 
     lift_floor_pos = 0.0
     lift_dir = 1
@@ -40,7 +50,7 @@ def main():
     people = []
     waiting_lines = {}
 
-    rest_x = RIGHT_MARGIN + 180
+    rest_x = RIGHT_MARGIN + 120
     call_x = shaft_x + shaft_w + 25
 
     next_person_id = 1
@@ -62,49 +72,94 @@ def main():
                 if btn_minus.collidepoint(mouse_pos):
                     floors = max(MIN_FLOORS, floors - 1)
                     waiting_lines.clear()
+
                     if lift_floor_pos > floors - 1:
                         lift_floor_pos = float(floors - 1)
-                    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-                    lift_h = BUILDING_HEIGHT / floors
+
+                    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+                    lift_h = building_height / floors
 
                 if btn_plus.collidepoint(mouse_pos):
                     floors = min(MAX_FLOORS, floors + 1)
                     waiting_lines.clear()
-                    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-                    lift_h = BUILDING_HEIGHT / floors
+
+                    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+                    lift_h = building_height / floors
 
         next_person_id = maybe_spawn_person(
-            rng, people, dt, floors, HEIGHT, rest_x, next_person_id
+            rng,
+            people,
+            dt,
+            floors,
+            HEIGHT,
+            rest_x,
+            next_person_id
         )
 
+        cab_x = shaft_x
+        lift_x_for_people = cab_x + lift_w / 2
+
         lift_blocked = any(p["state"] == "BOARDING" for p in people) or any(
-        p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 40
-        for p in people
-)
+            p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 40
+            for p in people
+        )
 
         if not lift_blocked:
             lift_floor_pos, lift_dir = update_lift(
-                lift_floor_pos, lift_dir, lift_speed_floors_per_sec, dt, floors
+                lift_floor_pos,
+                lift_dir,
+                lift_speed_floors_per_sec,
+                dt,
+                floors
             )
 
         lift_floor_int = int(round(lift_floor_pos))
         lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
 
-        cab_x = shaft_x
-        lift_x_for_people = cab_x + lift_w / 2
-
         update_people(
-            people, waiting_lines, dt, floors, HEIGHT, call_x,
-            lift_floor_int, lift_ready, int(lift_x_for_people)
+            people,
+            waiting_lines,
+            dt,
+            floors,
+            HEIGHT,
+            call_x,
+            lift_floor_int,
+            lift_ready,
+            int(lift_x_for_people)
         )
-        people[:] = [p for p in people if not (p["state"] == "EXITING" and p["x"] > WIDTH + 50)]
 
-        screen.fill(BLACK)
+        people[:] = [
+            p for p in people
+            if not (p["state"] == "EXITING" and p["x"] > WIDTH + 50)
+        ]
+
+        screen.fill((230, 230, 230))
 
         passenger_count = sum(1 for p in people if p["state"] == "IN_LIFT")
 
-        draw_building(screen, FONT, floors, HEIGHT, LEFT_MARGIN, RIGHT_MARGIN)
-        draw_lift(screen, shaft_x, shaft_w, lift_w, lift_h, lift_floor_pos, floors, HEIGHT, passenger_count, FONT)
+        # BELANGRIJK: nu zonder columns parameter
+        draw_building(
+            screen,
+            FONT,
+            floors,
+            HEIGHT,
+            LEFT_MARGIN,
+            RIGHT_MARGIN
+        )
+
+        draw_lift(
+            screen,
+            shaft_x,
+            shaft_w,
+            lift_w,
+            lift_h,
+            lift_floor_pos,
+            floors,
+            HEIGHT,
+            passenger_count,
+            FONT
+        )
+
         draw_people(screen, people)
         draw_button(screen, FONT, btn_minus, "–")
         draw_button(screen, FONT, btn_plus, "+")
