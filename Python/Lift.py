@@ -1,10 +1,11 @@
 import pygame
 from Python.Variables import GRAY, TOP_MARGIN, BOTTOM_MARGIN
 
-def floor_to_y(floor_pos: float, floors: int, HEIGHT: int) -> float:
-    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-    FLOOR_HEIGHT = BUILDING_HEIGHT / floors
-    return TOP_MARGIN + (floors - 1 - floor_pos) * FLOOR_HEIGHT
+def floor_to_y(floor_pos: float, floors: int, HEIGHT: int, lift_h: float) -> float:
+    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+    floor_height = building_height / floors
+    floor_top = TOP_MARGIN + (floors - 1 - floor_pos) * floor_height
+    return floor_top + (floor_height - lift_h) / 2
 
 def update_lift(lift_floor_pos: float, lift_dir: int, lift_speed_floors_per_sec: float, dt: float, floors: int) -> tuple[float, int]:
     lift_floor_pos += lift_dir * lift_speed_floors_per_sec * dt
@@ -24,18 +25,18 @@ def draw_lift(
     shaft_x: int,
     shaft_w: int,
     lift_w: int,
-    lift_h: int,
+    lift_h: float,
     lift_floor_pos: float,
     floors: int,
     HEIGHT: int,
     passenger_count: int,
     FONT: pygame.font.Font
 ) -> None:
-    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-    pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, BUILDING_HEIGHT), 2)
+    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+    pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, building_height), 2)
 
-    y = floor_to_y(lift_floor_pos, floors, HEIGHT)
-    cab = pygame.Rect(shaft_x, y, lift_w, lift_h)
+    y = floor_to_y(lift_floor_pos, floors, HEIGHT, lift_h)
+    cab = pygame.Rect(shaft_x, int(y), lift_w, int(lift_h))
     pygame.draw.rect(screen, (80, 220, 120), cab, border_radius=8)
 
     label = FONT.render(str(passenger_count), True, (20, 20, 20))
