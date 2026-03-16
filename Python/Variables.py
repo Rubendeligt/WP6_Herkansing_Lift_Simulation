@@ -23,6 +23,12 @@ LIFT_SPEED_FLOORS_PER_SEC = 0.8
 BTN_W, BTN_H = 70, 60
 BTN_GAP = 12
 
+DOOR_OPEN_SPEED = 3.0
+DOOR_CLOSE_SPEED = 4.0
+DOOR_HOLD_BOARDING = 1.8
+DOOR_HOLD_EXITING = 0.2
+EXIT_NEAR_LIFT_DISTANCE = 35
+
 def make_buttons(WIDTH: int) -> tuple[pygame.Rect, pygame.Rect]:
     btn_minus = pygame.Rect(WIDTH - 2 * BTN_W - BTN_GAP - 40, 30, BTN_W, BTN_H)
     btn_plus  = pygame.Rect(WIDTH - BTN_W - 40, 30, BTN_W, BTN_H)

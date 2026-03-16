@@ -13,7 +13,7 @@ from Python.Variables import (
     BOTTOM_MARGIN
 )
 from Python.Draw import draw_building, draw_button
-from Python.Lift import draw_lift, update_lift
+from Python.Lift import draw_lift, update_lift, get_lift_ready, update_lift_doors
 from Python.People import maybe_spawn_person, update_people, draw_people
 
 
@@ -101,9 +101,15 @@ def main():
         cab_x = shaft_x
         lift_x_for_people = cab_x + lift_w / 2
 
-        lift_blocked = any(p["state"] == "BOARDING" for p in people) or any(
-            p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 40
-            for p in people
+        lift_floor_int, lift_ready = get_lift_ready(lift_floor_pos)
+
+        door_progress, door_hold_timer, lift_blocked = update_lift_doors(
+            people,
+            lift_x_for_people,
+            lift_ready,
+            door_progress,
+            door_hold_timer,
+            dt
         )
 
         if not lift_blocked:
@@ -115,30 +121,7 @@ def main():
                 floors
             )
 
-        lift_floor_int = int(round(lift_floor_pos))
-        lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
-
-        boarding = any(p["state"] == "BOARDING" for p in people)
-        exiting = any(
-            p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 35
-            for p in people
-        )
-
-        if lift_ready and boarding:
-            door_hold_timer = 1.8
-        elif lift_ready and exiting:
-            door_hold_timer = 1.0
-        elif door_hold_timer > 0:
-            door_hold_timer = max(0.0, door_hold_timer - dt)
-
-        doors_should_be_open = lift_ready and (
-            boarding or exiting or door_hold_timer > 0
-        )
-
-        if doors_should_be_open:
-            door_progress = min(1.0, door_progress + 3 * dt)
-        else:
-            door_progress = max(0.0, door_progress - 4 * dt)
+        lift_floor_int, lift_ready = get_lift_ready(lift_floor_pos)
 
         update_people(
             people,
