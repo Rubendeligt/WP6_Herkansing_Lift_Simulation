@@ -40,14 +40,13 @@ def main():
 
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
 
-    # 8 liften totaal
     total_lifts = 8
+    normal_lifts = 2
+    fast_lifts = 6
 
-    # 2 gewone + 6 snelle
     normal_speed = LIFT_SPEED_FLOORS_PER_SEC
     fast_speed = LIFT_SPEED_FLOORS_PER_SEC * 2.2
 
-    # iets smallere shafts zodat 8 liften passen
     shaft_w = 45
     lift_w = shaft_w
     lift_h = building_height / floors
@@ -59,15 +58,12 @@ def main():
         for i in range(total_lifts)
     ]
 
-    # gebouw breed genoeg maken voor alle shafts
     RIGHT_MARGIN = shaft_positions[-1] + shaft_w + 40
 
     lifts = []
 
     for i in range(total_lifts):
-        speed = normal_speed if i < 2 else fast_speed
-
-        # startposities een beetje spreiden
+        speed = normal_speed if i < normal_lifts else fast_speed
         start_floor = min(floors - 1, int(i * floors / total_lifts))
         start_dir = 1 if i % 2 == 0 else -1
 
@@ -194,8 +190,8 @@ def main():
             FONT,
             floors,
             HEIGHT,
-            LEFT_MARGIN,
-            RIGHT_MARGIN
+            shaft_positions,
+            shaft_w
         )
 
         for lift in lifts:
@@ -221,6 +217,11 @@ def main():
         draw_people(screen, people)
         draw_button(screen, FONT, btn_minus, "–")
         draw_button(screen, FONT, btn_plus, "+")
+
+        info1 = FONT.render("", True, (20, 20, 20))
+        info2 = FONT.render("", True, (20, 20, 20))
+        screen.blit(info1, (30, 20))
+        screen.blit(info2, (30, 45))
 
         pygame.display.flip()
 
