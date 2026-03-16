@@ -1,11 +1,19 @@
 import random
 import pygame
-from Python.Variables import TOP_MARGIN, BOTTOM_MARGIN, PERSON_RADIUS, PERSON_SPEED_PX_PER_SEC, SPAWN_CHANCE_PER_SEC
+from Python.Variables import (
+    TOP_MARGIN,
+    BOTTOM_MARGIN,
+    PERSON_RADIUS,
+    PERSON_SPEED_PX_PER_SEC,
+    SPAWN_CHANCE_PER_SEC
+)
+
 
 def floor_center_y(floor_index: int, floors: int, HEIGHT: int) -> float:
-    BUILDING_HEIGHT = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-    FLOOR_HEIGHT = BUILDING_HEIGHT / floors
-    return TOP_MARGIN + (floors - 1 - floor_index) * FLOOR_HEIGHT + FLOOR_HEIGHT / 2
+    building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+    floor_height = building_height / floors
+    return TOP_MARGIN + (floors - 1 - floor_index) * floor_height + floor_height / 2
+
 
 def maybe_spawn_person(
     rng: random.Random,
@@ -30,10 +38,13 @@ def maybe_spawn_person(
             "dest": dest_floor,
             "x": float(rest_x),
             "y": float(y),
-            "state": "WALKING"
+            "state": "WALKING",
+            "elevator_id": None
         })
         next_person_id += 1
+
     return next_person_id
+
 
 def update_people(
     people: list,
@@ -42,12 +53,15 @@ def update_people(
     floors: int,
     HEIGHT: int,
     call_x: int,
-    lift_floor: int,
-    lift_ready: bool,
-    lift_x: int
+    lifts: list
 ) -> None:
     spacing = PERSON_RADIUS * 2 + 6
     waiting_lines.clear()
+
+    ready_lifts_by_floor = {}
+    for lift in lifts:
+        if lift["ready"]:
+            ready_lifts_by_floor.setdefault(lift["floor"], []).append(lift)
 
     for p in people:
         if p["floor"] > floors - 1:
@@ -71,11 +85,29 @@ def update_people(
             idx = waiting_lines[p["floor"]].index(p["id"])
             p["x"] = float(call_x + idx * spacing)
 
-            if lift_ready and p["floor"] == lift_floor:
+            floor_lifts = ready_lifts_by_floor.get(p["floor"], [])
+            if floor_lifts:
+                chosen_lift = min(
+                    floor_lifts,
+                    key=lambda lift: abs(p["x"] - lift["people_x"])
+                )
                 p["state"] = "BOARDING"
+                p["elevator_id"] = chosen_lift["id"]
 
         if p["state"] == "BOARDING":
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
+
+            target_lift = next(
+                (lift for lift in lifts if lift["id"] == p["elevator_id"]),
+                None
+            )
+
+            if target_lift is None:
+                p["state"] = "WAITING"
+                p["elevator_id"] = None
+                continue
+
+            lift_x = target_lift["people_x"]
 
             if p["x"] > lift_x:
                 p["x"] -= PERSON_SPEED_PX_PER_SEC * dt
@@ -91,16 +123,27 @@ def update_people(
                 p["state"] = "IN_LIFT"
 
         if p["state"] == "IN_LIFT":
-            p["floor"] = lift_floor
-            p["x"] = float(lift_x)
-            p["y"] = float(floor_center_y(lift_floor, floors, HEIGHT))
+            target_lift = next(
+                (lift for lift in lifts if lift["id"] == p["elevator_id"]),
+                None
+            )
 
-            if lift_ready and lift_floor == p["dest"]:
+            if target_lift is None:
+                p["state"] = "WAITING"
+                p["elevator_id"] = None
+                continue
+
+            p["floor"] = target_lift["floor"]
+            p["x"] = float(target_lift["people_x"])
+            p["y"] = float(floor_center_y(target_lift["floor"], floors, HEIGHT))
+
+            if target_lift["ready"] and target_lift["floor"] == p["dest"]:
                 p["state"] = "EXITING"
 
         if p["state"] == "EXITING":
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
             p["x"] += PERSON_SPEED_PX_PER_SEC * dt
+
 
 def draw_people(screen: pygame.Surface, people: list) -> None:
     for p in people:

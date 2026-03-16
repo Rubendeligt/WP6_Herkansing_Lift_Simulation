@@ -1,6 +1,8 @@
 import pygame
 import sys
 import random
+import inspect
+import Python.People as PeopleModule
 
 from Python.Variables import (
     MIN_FLOORS,
@@ -14,7 +16,13 @@ from Python.Variables import (
 )
 from Python.Draw import draw_building, draw_button
 from Python.Lift import draw_lift, update_lift
-from Python.People import maybe_spawn_person, update_people, draw_people
+
+maybe_spawn_person = PeopleModule.maybe_spawn_person
+update_people = PeopleModule.update_people
+draw_people = PeopleModule.draw_people
+
+print("People file loaded from:", PeopleModule.__file__)
+print("update_people signature:", inspect.signature(update_people))
 
 
 def main():
@@ -29,21 +37,62 @@ def main():
     FONT = pygame.font.SysFont("arial", 18)
 
     floors = 4
-
     btn_minus, btn_plus = make_buttons(WIDTH)
 
     RIGHT_MARGIN = RIGHT_MARGIN_DEFAULT
-
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
 
-    shaft_x = LEFT_MARGIN + 50
-    shaft_w = 80
+    shaft_w = 70
     lift_w = shaft_w
     lift_h = building_height / floors
 
-    lift_floor_pos = 0.0
-    lift_dir = 1
-    lift_speed_floors_per_sec = LIFT_SPEED_FLOORS_PER_SEC
+    shaft_positions = [
+        LEFT_MARGIN + 40,
+        LEFT_MARGIN + 140,
+        LEFT_MARGIN + 240
+    ]
+
+    lifts = [
+        {
+            "id": 0,
+            "shaft_x": shaft_positions[0],
+            "shaft_w": shaft_w,
+            "lift_w": lift_w,
+            "lift_h": lift_h,
+            "floor_pos": 0.0,
+            "dir": 1,
+            "speed": LIFT_SPEED_FLOORS_PER_SEC,
+            "floor": 0,
+            "ready": True,
+            "people_x": int(shaft_positions[0] + lift_w / 2)
+        },
+        {
+            "id": 1,
+            "shaft_x": shaft_positions[1],
+            "shaft_w": shaft_w,
+            "lift_w": lift_w,
+            "lift_h": lift_h,
+            "floor_pos": float(max(0, floors // 2)),
+            "dir": -1,
+            "speed": LIFT_SPEED_FLOORS_PER_SEC,
+            "floor": max(0, floors // 2),
+            "ready": True,
+            "people_x": int(shaft_positions[1] + lift_w / 2)
+        },
+        {
+            "id": 2,
+            "shaft_x": shaft_positions[2],
+            "shaft_w": shaft_w,
+            "lift_w": lift_w,
+            "lift_h": lift_h,
+            "floor_pos": float(floors - 1),
+            "dir": -1,
+            "speed": LIFT_SPEED_FLOORS_PER_SEC,
+            "floor": floors - 1,
+            "ready": True,
+            "people_x": int(shaft_positions[2] + lift_w / 2)
+        }
+    ]
 
     rng = random.Random(7)
 
@@ -51,11 +100,11 @@ def main():
     waiting_lines = {}
 
     rest_x = RIGHT_MARGIN + 120
-    call_x = shaft_x + shaft_w + 25
+    call_x = shaft_positions[-1] + shaft_w + 25
 
     next_person_id = 1
-
     running = True
+
     while running:
         dt = clock.tick(60) / 1000.0
 
@@ -73,11 +122,14 @@ def main():
                     floors = max(MIN_FLOORS, floors - 1)
                     waiting_lines.clear()
 
-                    if lift_floor_pos > floors - 1:
-                        lift_floor_pos = float(floors - 1)
-
                     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
                     lift_h = building_height / floors
+
+                    for lift in lifts:
+                        if lift["floor_pos"] > floors - 1:
+                            lift["floor_pos"] = float(floors - 1)
+                        lift["lift_h"] = lift_h
+                        lift["floor"] = int(round(lift["floor_pos"]))
 
                 if btn_plus.collidepoint(mouse_pos):
                     floors = min(MAX_FLOORS, floors + 1)
@@ -85,6 +137,12 @@ def main():
 
                     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
                     lift_h = building_height / floors
+
+                    for lift in lifts:
+                        lift["lift_h"] = lift_h
+                        if lift["floor_pos"] > floors - 1:
+                            lift["floor_pos"] = float(floors - 1)
+                        lift["floor"] = int(round(lift["floor_pos"]))
 
         next_person_id = maybe_spawn_person(
             rng,
@@ -96,25 +154,32 @@ def main():
             next_person_id
         )
 
-        cab_x = shaft_x
-        lift_x_for_people = cab_x + lift_w / 2
+        for lift in lifts:
+            lift_x_for_people = lift["shaft_x"] + lift["lift_w"] / 2
+            lift["people_x"] = int(lift_x_for_people)
 
-        lift_blocked = any(p["state"] == "BOARDING" for p in people) or any(
-            p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 40
-            for p in people
-        )
-
-        if not lift_blocked:
-            lift_floor_pos, lift_dir = update_lift(
-                lift_floor_pos,
-                lift_dir,
-                lift_speed_floors_per_sec,
-                dt,
-                floors
+            lift_blocked = any(
+                p["state"] == "BOARDING" and p.get("elevator_id") == lift["id"]
+                for p in people
+            ) or any(
+                p["state"] == "EXITING"
+                and p.get("elevator_id") == lift["id"]
+                and abs(p["x"] - lift_x_for_people) < 40
+                for p in people
             )
 
-        lift_floor_int = int(round(lift_floor_pos))
-        lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
+            if not lift_blocked:
+                lift["floor_pos"], lift["dir"] = update_lift(
+                    lift["floor_pos"],
+                    lift["dir"],
+                    lift["speed"],
+                    dt,
+                    floors
+                )
+
+            lift_floor_int = int(round(lift["floor_pos"]))
+            lift["floor"] = lift_floor_int
+            lift["ready"] = abs(lift["floor_pos"] - lift_floor_int) < 0.03
 
         update_people(
             people,
@@ -123,9 +188,7 @@ def main():
             floors,
             HEIGHT,
             call_x,
-            lift_floor_int,
-            lift_ready,
-            int(lift_x_for_people)
+            lifts
         )
 
         people[:] = [
@@ -135,9 +198,6 @@ def main():
 
         screen.fill((230, 230, 230))
 
-        passenger_count = sum(1 for p in people if p["state"] == "IN_LIFT")
-
-        # BELANGRIJK: nu zonder columns parameter
         draw_building(
             screen,
             FONT,
@@ -147,18 +207,25 @@ def main():
             RIGHT_MARGIN
         )
 
-        draw_lift(
-            screen,
-            shaft_x,
-            shaft_w,
-            lift_w,
-            lift_h,
-            lift_floor_pos,
-            floors,
-            HEIGHT,
-            passenger_count,
-            FONT
-        )
+        for lift in lifts:
+            passenger_count = sum(
+                1
+                for p in people
+                if p["state"] == "IN_LIFT" and p.get("elevator_id") == lift["id"]
+            )
+
+            draw_lift(
+                screen,
+                lift["shaft_x"],
+                lift["shaft_w"],
+                lift["lift_w"],
+                lift["lift_h"],
+                lift["floor_pos"],
+                floors,
+                HEIGHT,
+                passenger_count,
+                FONT
+            )
 
         draw_people(screen, people)
         draw_button(screen, FONT, btn_minus, "–")
