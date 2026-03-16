@@ -54,6 +54,8 @@ def main():
     call_x = shaft_x + shaft_w + 25
 
     next_person_id = 1
+    door_progress = 0.0
+    door_hold_timer = 0.0
 
     running = True
     while running:
@@ -116,6 +118,28 @@ def main():
         lift_floor_int = int(round(lift_floor_pos))
         lift_ready = abs(lift_floor_pos - lift_floor_int) < 0.03
 
+        boarding = any(p["state"] == "BOARDING" for p in people)
+        exiting = any(
+            p["state"] == "EXITING" and abs(p["x"] - lift_x_for_people) < 35
+            for p in people
+        )
+
+        if lift_ready and boarding:
+            door_hold_timer = 1.8
+        elif lift_ready and exiting:
+            door_hold_timer = 1.0
+        elif door_hold_timer > 0:
+            door_hold_timer = max(0.0, door_hold_timer - dt)
+
+        doors_should_be_open = lift_ready and (
+            boarding or exiting or door_hold_timer > 0
+        )
+
+        if doors_should_be_open:
+            door_progress = min(1.0, door_progress + 3 * dt)
+        else:
+            door_progress = max(0.0, door_progress - 4 * dt)
+
         update_people(
             people,
             waiting_lines,
@@ -137,7 +161,6 @@ def main():
 
         passenger_count = sum(1 for p in people if p["state"] == "IN_LIFT")
 
-        # BELANGRIJK: nu zonder columns parameter
         draw_building(
             screen,
             FONT,
@@ -157,7 +180,8 @@ def main():
             floors,
             HEIGHT,
             passenger_count,
-            FONT
+            FONT,
+            door_progress
         )
 
         draw_people(screen, people)
