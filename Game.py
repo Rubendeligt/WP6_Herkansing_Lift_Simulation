@@ -8,7 +8,6 @@ from Python.Variables import (
     MIN_FLOORS,
     MAX_FLOORS,
     LEFT_MARGIN,
-    RIGHT_MARGIN_DEFAULT,
     LIFT_SPEED_FLOORS_PER_SEC,
     make_buttons,
     TOP_MARGIN,
@@ -36,63 +35,55 @@ def main():
     clock = pygame.time.Clock()
     FONT = pygame.font.SysFont("arial", 18)
 
-    floors = 4
+    floors = 6
     btn_minus, btn_plus = make_buttons(WIDTH)
 
-    RIGHT_MARGIN = RIGHT_MARGIN_DEFAULT
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
 
-    shaft_w = 70
+    # 8 liften totaal
+    total_lifts = 8
+
+    # 2 gewone + 6 snelle
+    normal_speed = LIFT_SPEED_FLOORS_PER_SEC
+    fast_speed = LIFT_SPEED_FLOORS_PER_SEC * 2.2
+
+    # iets smallere shafts zodat 8 liften passen
+    shaft_w = 45
     lift_w = shaft_w
     lift_h = building_height / floors
+    shaft_gap = 10
+    start_x = LEFT_MARGIN + 20
 
     shaft_positions = [
-        LEFT_MARGIN + 40,
-        LEFT_MARGIN + 140,
-        LEFT_MARGIN + 240
+        start_x + i * (shaft_w + shaft_gap)
+        for i in range(total_lifts)
     ]
 
-    lifts = [
-        {
-            "id": 0,
-            "shaft_x": shaft_positions[0],
+    # gebouw breed genoeg maken voor alle shafts
+    RIGHT_MARGIN = shaft_positions[-1] + shaft_w + 40
+
+    lifts = []
+
+    for i in range(total_lifts):
+        speed = normal_speed if i < 2 else fast_speed
+
+        # startposities een beetje spreiden
+        start_floor = min(floors - 1, int(i * floors / total_lifts))
+        start_dir = 1 if i % 2 == 0 else -1
+
+        lifts.append({
+            "id": i,
+            "shaft_x": shaft_positions[i],
             "shaft_w": shaft_w,
             "lift_w": lift_w,
             "lift_h": lift_h,
-            "floor_pos": 0.0,
-            "dir": 1,
-            "speed": LIFT_SPEED_FLOORS_PER_SEC,
-            "floor": 0,
+            "floor_pos": float(start_floor),
+            "dir": start_dir,
+            "speed": speed,
+            "floor": start_floor,
             "ready": True,
-            "people_x": int(shaft_positions[0] + lift_w / 2)
-        },
-        {
-            "id": 1,
-            "shaft_x": shaft_positions[1],
-            "shaft_w": shaft_w,
-            "lift_w": lift_w,
-            "lift_h": lift_h,
-            "floor_pos": float(max(0, floors // 2)),
-            "dir": -1,
-            "speed": LIFT_SPEED_FLOORS_PER_SEC,
-            "floor": max(0, floors // 2),
-            "ready": True,
-            "people_x": int(shaft_positions[1] + lift_w / 2)
-        },
-        {
-            "id": 2,
-            "shaft_x": shaft_positions[2],
-            "shaft_w": shaft_w,
-            "lift_w": lift_w,
-            "lift_h": lift_h,
-            "floor_pos": float(floors - 1),
-            "dir": -1,
-            "speed": LIFT_SPEED_FLOORS_PER_SEC,
-            "floor": floors - 1,
-            "ready": True,
-            "people_x": int(shaft_positions[2] + lift_w / 2)
-        }
-    ]
+            "people_x": int(shaft_positions[i] + lift_w / 2)
+        })
 
     rng = random.Random(7)
 
@@ -100,7 +91,7 @@ def main():
     waiting_lines = {}
 
     rest_x = RIGHT_MARGIN + 120
-    call_x = shaft_positions[-1] + shaft_w + 25
+    call_x = RIGHT_MARGIN + 25
 
     next_person_id = 1
     running = True
