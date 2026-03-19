@@ -4,6 +4,8 @@ import sys
 from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
+from Python.Information import InformationPanel
+from Python.Draw import draw_information_panel
 
 
 def main():
@@ -19,6 +21,7 @@ def main():
 
     simulation = Simulation(width, height, floors=6)
     renderer = Renderer(screen, font)
+    info_panel = InformationPanel(width, height)
 
     btn_minus, btn_plus, btn_monitor = make_buttons(width)
 
@@ -36,7 +39,9 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            info_panel.handle_event(event)
+
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
 
                 if btn_monitor.collidepoint(mouse_pos):
@@ -52,7 +57,12 @@ def main():
         if current_view == "simulation":
             simulation.update(dt)
 
+        info_panel.update(dt)
+
         renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, current_view)
+        draw_information_panel(screen, info_panel, font, simulation)
+
+        pygame.display.flip()
 
     pygame.quit()
     sys.exit()

@@ -66,3 +66,26 @@ def draw_building(
         y = TOP_MARGIN + floor * floor_height
         label = FONT.render(f"Floor {floors - floor - 1}", True, WHITE)
         screen.blit(label, (20, y + 5))
+
+def draw_information_panel(screen, info_panel, font, simulation):
+    button = info_panel.get_button_rect()
+    pygame.draw.rect(screen, (90, 90, 90), button, border_radius=6)
+
+    arrow = "<" if info_panel.open else ">"
+    text = font.render(arrow, True, (255, 255, 255))
+    screen.blit(text, text.get_rect(center=button.center))
+
+    panel = info_panel.get_panel_rect()
+    pygame.draw.rect(screen, (25, 25, 35), panel)
+
+    title = font.render("Information", True, (255, 255, 255))
+    screen.blit(title, (panel.x + 20, 20))
+
+    floors = font.render(f"Floors: {simulation.floors}", True, (200, 200, 200))
+    screen.blit(floors, (panel.x + 20, 70))
+
+    lifts = font.render(f"Lifts: {simulation.total_lifts}", True, (200, 200, 200))
+    screen.blit(lifts, (panel.x + 20, 110))
+
+    people = font.render(f"People: {len(simulation.people)}", True, (200, 200, 200))
+    screen.blit(people, (panel.x + 20, 150))
