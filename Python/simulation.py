@@ -45,6 +45,9 @@ class Simulation:
         self.people = []
         self.waiting_lines = {}
         self.next_person_id = 1
+        self.completed_wait_times = []
+        self.wait_time_timer = 0.0
+        self.displayed_average_wait_time = 0.0
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
@@ -88,6 +91,7 @@ class Simulation:
             lift["floor"] = int(round(lift["floor_pos"]))
 
     def update(self, dt: float) -> None:
+        self.wait_time_timer += dt
         self.next_person_id = self.maybe_spawn_person(
             self.rng,
             self.people,
@@ -132,7 +136,8 @@ class Simulation:
             self.floors,
             self.height,
             self.call_x,
-            self.lifts
+            self.lifts,
+            self.completed_wait_times
         )
 
         self.people[:] = [
@@ -146,3 +151,18 @@ class Simulation:
             for p in self.people
             if p["state"] == "IN_LIFT" and p.get("elevator_id") == lift_id
         )
+    
+    def get_average_wait_time(self) -> float:
+        waiting_times = [
+            p["wait_time"]
+            for p in self.people
+            if p["state"] in ["WAITING", "BOARDING"]
+    ]
+
+        all_times = self.completed_wait_times + waiting_times
+
+        if not all_times:
+            return 0.0
+
+        return sum(all_times) / len(all_times)
+        

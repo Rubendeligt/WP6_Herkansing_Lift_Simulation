@@ -89,3 +89,11 @@ def draw_information_panel(screen, info_panel, font, simulation):
 
     people = font.render(f"People: {len(simulation.people)}", True, (200, 200, 200))
     screen.blit(people, (panel.x + 20, 150))
+
+    avg_wait = simulation.get_average_wait_time()
+    avg_wait_text = font.render(
+    f"Gem. wachttijd: {avg_wait:.1f}s",
+    True,
+    (200, 200, 200)
+)
+    screen.blit(avg_wait_text, (panel.x + 20, 190))

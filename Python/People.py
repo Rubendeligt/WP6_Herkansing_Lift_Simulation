@@ -39,7 +39,9 @@ def maybe_spawn_person(
             "x": float(rest_x),
             "y": float(y),
             "state": "WALKING",
-            "elevator_id": None
+            "elevator_id": None,
+            "wait_time": 0.0,
+            "wait_recorded": False
         })
         next_person_id += 1
 
@@ -53,7 +55,8 @@ def update_people(
     floors: int,
     HEIGHT: int,
     call_x: int,
-    lifts: list
+    lifts: list,
+    completed_wait_times: list
 ) -> None:
     spacing = PERSON_RADIUS * 2 + 6
     waiting_lines.clear()
@@ -79,6 +82,7 @@ def update_people(
                     p["state"] = "WAITING"
 
         if p["state"] == "WAITING":
+            p["wait_time"] += dt
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
 
             waiting_lines.setdefault(p["floor"], []).append(p["id"])
@@ -121,6 +125,9 @@ def update_people(
                     p["state"] = "IN_LIFT"
             else:
                 p["state"] = "IN_LIFT"
+                if not p["wait_recorded"]:
+                    completed_wait_times.append(p["wait_time"])
+                    p["wait_recorded"] = True
 
         if p["state"] == "IN_LIFT":
             target_lift = next(
