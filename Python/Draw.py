@@ -99,3 +99,15 @@ def draw_information_panel(screen, info_panel, font, simulation):
     screen.blit(avg_wait_text, (panel.x + 20, 190))
     time_text = font.render(f"Tijd: {simulation.get_time_string()}", True, (255, 255, 255))
     screen.blit(time_text, (20, 20)) 
+
+def draw_time(screen, font, simulation):
+    time_str = simulation.get_time_string()
+    text = font.render(time_str, True, (255, 255, 255))
+    text_rect = text.get_rect()
+    screen_width = screen.get_width()
+    text_rect.midtop = (screen_width // 2, 10)
+    padding = 10
+    bg_rect = text_rect.inflate(padding * 2, padding)
+
+    pygame.draw.rect(screen, (0, 0, 0), bg_rect, border_radius=8)
+    screen.blit(text, text_rect)

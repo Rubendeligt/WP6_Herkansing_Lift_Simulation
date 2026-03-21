@@ -5,7 +5,7 @@ from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
-from Python.Draw import draw_information_panel
+from Python.Draw import draw_information_panel, draw_time
 
 
 def main():
@@ -61,6 +61,7 @@ def main():
 
         renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, current_view)
         draw_information_panel(screen, info_panel, font, simulation)
+        draw_time(screen, font, simulation)
 
         pygame.display.flip()
 

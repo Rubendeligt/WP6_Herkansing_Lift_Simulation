@@ -118,7 +118,8 @@ class Simulation:
             self.floors,
             self.height,
             self.rest_x,
-            self.next_person_id
+            self.next_person_id,
+            self.time_minutes
         )
 
         for lift in self.lifts:

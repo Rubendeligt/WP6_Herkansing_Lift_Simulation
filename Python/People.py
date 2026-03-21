@@ -22,9 +22,24 @@ def maybe_spawn_person(
     floors: int,
     HEIGHT: int,
     rest_x: int,
-    next_person_id: int
+    next_person_id: int,
+    time_minutes: float
 ) -> int:
-    if rng.random() < SPAWN_CHANCE_PER_SEC * dt:
+    hours = int(time_minutes // 60)
+    minutes = int(time_minutes % 60)
+
+    spawn_rate = SPAWN_CHANCE_PER_SEC
+    if (hours == 8 and minutes >= 15) or (hours == 8 and minutes < 45):
+        spawn_rate *= 2.5
+    elif hours == 12:
+        spawn_rate *= 3.5
+    elif hours == 17:
+        spawn_rate *= 2.5
+
+    elif hours >= 18:
+        spawn_rate *= 0.25
+
+    if rng.random() < spawn_rate * dt:
         start_floor = rng.randrange(0, floors)
         y = floor_center_y(start_floor, floors, HEIGHT)
 
