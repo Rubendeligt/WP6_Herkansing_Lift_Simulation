@@ -59,7 +59,8 @@ def main():
 
         info_panel.update(dt)
 
-        renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, current_view)
+        offset = max(0, info_panel.screen_width - info_panel.get_panel_rect().x)
+        renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, current_view, offset)
         draw_information_panel(screen, info_panel, font, simulation)
         draw_time(screen, font, simulation)
 
