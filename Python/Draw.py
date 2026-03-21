@@ -1,6 +1,6 @@
 import pygame
 from Python.Variables import GRAY, WHITE, TOP_MARGIN, BOTTOM_MARGIN
-from Python.grafiek import draw_wait_time_graph
+from Python.grafiek import draw_wait_time_graph, draw_people_graph
 
 def draw_button(screen: pygame.Surface, FONT: pygame.font.Font, rect: pygame.Rect, text: str) -> None:
     mouse_pos = pygame.mouse.get_pos()
@@ -101,6 +101,7 @@ def draw_information_panel(screen, info_panel, font, simulation):
     screen.blit(time_text, (20, 20)) 
 
     draw_wait_time_graph(screen, panel, font, simulation)
+    draw_people_graph(screen, panel, font, simulation)
 
 def draw_time(screen, font, simulation):
     time_str = simulation.get_time_string()
