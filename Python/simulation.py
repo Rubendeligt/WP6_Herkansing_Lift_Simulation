@@ -49,6 +49,8 @@ class Simulation:
         self.recent_wait_times = []
         self.wait_time_timer = 0.0
         self.displayed_average_wait_time = 0.0
+        self.time_minutes = 7 * 60
+        self.time_speed = 60
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
@@ -92,6 +94,10 @@ class Simulation:
             lift["floor"] = int(round(lift["floor_pos"]))
 
     def update(self, dt: float) -> None:
+        self.time_minutes += dt * self.time_speed
+        if self.time_minutes > 21 * 60:
+            self.time_minutes = 21 * 60
+           
         self.wait_time_timer += dt
 
         if self.wait_time_timer >= 10.0:
@@ -168,3 +174,9 @@ class Simulation:
     
     def get_average_wait_time(self) -> float:
         return self.displayed_average_wait_time
+    
+    def get_time_string(self) -> str:
+        total_minutes = int(self.time_minutes)
+        hours = total_minutes // 60
+        minutes = total_minutes % 60
+        return f"{hours:02d}:{minutes:02d}"

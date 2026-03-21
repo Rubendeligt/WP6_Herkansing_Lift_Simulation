@@ -97,3 +97,5 @@ def draw_information_panel(screen, info_panel, font, simulation):
     (200, 200, 200)
 )
     screen.blit(avg_wait_text, (panel.x + 20, 190))
+    time_text = font.render(f"Tijd: {simulation.get_time_string()}", True, (255, 255, 255))
+    screen.blit(time_text, (20, 20)) 
