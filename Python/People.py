@@ -56,7 +56,8 @@ def update_people(
     HEIGHT: int,
     call_x: int,
     lifts: list,
-    completed_wait_times: list
+    completed_wait_times: list,
+    recent_wait_times: list
 ) -> None:
     spacing = PERSON_RADIUS * 2 + 6
     waiting_lines.clear()
@@ -125,9 +126,11 @@ def update_people(
                     p["state"] = "IN_LIFT"
             else:
                 p["state"] = "IN_LIFT"
-                if not p["wait_recorded"]:
-                    completed_wait_times.append(p["wait_time"])
-                    p["wait_recorded"] = True
+
+            if p["state"] == "IN_LIFT" and not p["wait_recorded"]:
+                completed_wait_times.append(p["wait_time"])
+                recent_wait_times.append(p["wait_time"])
+                p["wait_recorded"] = True
 
         if p["state"] == "IN_LIFT":
             target_lift = next(

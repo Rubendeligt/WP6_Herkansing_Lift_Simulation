@@ -46,6 +46,7 @@ class Simulation:
         self.waiting_lines = {}
         self.next_person_id = 1
         self.completed_wait_times = []
+        self.recent_wait_times = []
         self.wait_time_timer = 0.0
         self.displayed_average_wait_time = 0.0
 
@@ -92,6 +93,18 @@ class Simulation:
 
     def update(self, dt: float) -> None:
         self.wait_time_timer += dt
+
+        if self.wait_time_timer >= 10.0:
+            if self.recent_wait_times:
+                self.displayed_average_wait_time = (
+                    sum(self.recent_wait_times) / len(self.recent_wait_times)
+                )
+            else:
+                self.displayed_average_wait_time = 0.0
+
+            self.recent_wait_times.clear()
+            self.wait_time_timer = 0.0
+
         self.next_person_id = self.maybe_spawn_person(
             self.rng,
             self.people,
@@ -137,7 +150,8 @@ class Simulation:
             self.height,
             self.call_x,
             self.lifts,
-            self.completed_wait_times
+            self.completed_wait_times,
+            self.recent_wait_times
         )
 
         self.people[:] = [
@@ -153,16 +167,4 @@ class Simulation:
         )
     
     def get_average_wait_time(self) -> float:
-        waiting_times = [
-            p["wait_time"]
-            for p in self.people
-            if p["state"] in ["WAITING", "BOARDING"]
-    ]
-
-        all_times = self.completed_wait_times + waiting_times
-
-        if not all_times:
-            return 0.0
-
-        return sum(all_times) / len(all_times)
-        
+        return self.displayed_average_wait_time
