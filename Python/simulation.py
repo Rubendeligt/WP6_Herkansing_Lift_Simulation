@@ -49,8 +49,10 @@ class Simulation:
         self.recent_wait_times = []
         self.wait_time_timer = 0.0
         self.displayed_average_wait_time = 0.0
+        self.wait_time_history = []
         self.time_minutes = 7 * 60
         self.time_speed = 5
+        self.last_logged_hour = int(self.time_minutes // 60)
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
@@ -108,6 +110,13 @@ class Simulation:
             else:
                 self.displayed_average_wait_time = 0.0
 
+            current_hour = int(self.time_minutes // 60)
+
+            if current_hour != self.last_logged_hour:
+                self.wait_time_history.append(
+                (self.time_minutes, self.displayed_average_wait_time)
+    )
+            self.last_logged_hour = current_hour
             self.recent_wait_times.clear()
             self.wait_time_timer = 0.0
 
@@ -181,3 +190,6 @@ class Simulation:
         hours = total_minutes // 60
         minutes = total_minutes % 60
         return f"{hours:02d}:{minutes:02d}"
+    
+    def get_wait_time_history(self):
+        return self.wait_time_history
