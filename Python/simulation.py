@@ -50,7 +50,7 @@ class Simulation:
         self.wait_time_timer = 0.0
         self.displayed_average_wait_time = 0.0
         self.time_minutes = 7 * 60
-        self.time_speed = 60
+        self.time_speed = 5
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
