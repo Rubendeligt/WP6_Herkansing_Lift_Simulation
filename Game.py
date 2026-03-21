@@ -45,7 +45,7 @@ def main():
                 mouse_pos = pygame.mouse.get_pos()
 
                 if btn_monitor.collidepoint(mouse_pos):
-                    current_view = "monitor" if current_view == "simulation" else "simulation"
+                    info_panel.toggle()
 
                 elif current_view == "simulation":
                     if btn_minus.collidepoint(mouse_pos):

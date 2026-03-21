@@ -6,7 +6,7 @@ class InformationPanel:
         self.screen_width = width
         self.screen_height = height
 
-        self.width = 260
+        self.width = 420
         self.button_w = 35
         self.button_h = 120
 
@@ -36,7 +36,12 @@ class InformationPanel:
 
     def handle_event(self, event):
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            if self.get_button_rect().collidepoint(event.pos):
+            button_rect = self.get_button_rect()
+            panel_rect = self.get_panel_rect()
+
+            if button_rect.collidepoint(event.pos):
+                self.toggle()
+            elif self.open and not panel_rect.collidepoint(event.pos):
                 self.toggle()
 
     def get_button_rect(self):
