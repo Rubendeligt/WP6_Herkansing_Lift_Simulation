@@ -14,7 +14,7 @@ class Renderer:
         if current_view == "simulation":
             self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, offset)
         else:
-            self.draw_monitor(btn_monitor)
+            self.draw_monitor(btn_monitor, offset)
 
     def draw_simulation(self, simulation, btn_minus, btn_plus, btn_monitor, offset=0):
         self.screen.fill((230, 230, 230))
@@ -52,15 +52,82 @@ class Renderer:
 
         draw_button(self.screen, self.font, shifted_minus, "-")
         draw_button(self.screen, self.font, shifted_plus, "+")
-        draw_button(self.screen, self.font, shifted_monitor, "tweede screen")
+        draw_button(self.screen, self.font, shifted_monitor, "tweede scherm")
 
     def draw_monitor(self, btn_monitor, offset=0):
-        self.screen.fill((30, 30, 30))
+        self.screen.fill((228, 230, 220))
 
         shifted_monitor = btn_monitor.move(-offset, 0)
         draw_button(self.screen, self.font, shifted_monitor, "Back")
 
-        text = self.font.render("Monitor Screen", True, (255, 255, 255))
-        self.screen.blit(text, (40, 40))
+        title_bar = pygame.Rect(0, 0, self.screen.get_width(), 50)
+        pygame.draw.rect(self.screen, (70, 92, 170), title_bar)
 
-        pygame.display.flip()
+        title = self.font.render("Lift Monitor", True, (255, 255, 255))
+        self.screen.blit(title, (20, 15))
+
+        left_margin = 80
+        top_margin = 90
+        area_width = self.screen.get_width() - 160
+        area_height = self.screen.get_height() - 140
+
+        section_height = area_height / 4
+
+        for i in range(4):
+            section_rect = pygame.Rect(
+                left_margin,
+                int(top_margin + i * section_height),
+                area_width,
+                int(section_height - 15)
+            )
+
+            pygame.draw.rect(self.screen, (210, 214, 222), section_rect)
+            pygame.draw.rect(self.screen, (80, 84, 92), section_rect, 2)
+
+            shaft_rect = pygame.Rect(
+                section_rect.x + 25,
+                section_rect.y + 18,
+                int(section_rect.width * 0.18),
+                int(section_rect.height * 0.55)
+            )
+
+            pygame.draw.rect(self.screen, (186, 196, 220), shaft_rect)
+            pygame.draw.rect(self.screen, (70, 90, 130), shaft_rect, 2)
+
+            for stripe_x in range(int(shaft_rect.x + 6), int(shaft_rect.right - 2), 10):
+                pygame.draw.line(
+                    self.screen,
+                    (150, 170, 210),
+                    (stripe_x, shaft_rect.y + 3),
+                    (stripe_x, shaft_rect.bottom - 3),
+                    2
+                )
+
+            cab_rect = pygame.Rect(
+                shaft_rect.x + 6,
+                int(shaft_rect.y + shaft_rect.height * (0.15 if i == 0 else 0.45)),
+                shaft_rect.width - 12,
+                int(shaft_rect.height * 0.28)
+            )
+
+            pygame.draw.rect(self.screen, (72, 118, 210), cab_rect)
+            pygame.draw.rect(
+                self.screen,
+                (255, 90, 170),
+                (cab_rect.x, cab_rect.bottom - 4, cab_rect.width, 4)
+            )
+
+            text_x = shaft_rect.right + 40
+            text_y = section_rect.y + 25
+
+            label = self.font.render(f"Lift {i + 1}", True, (30, 30, 30))
+            self.screen.blit(label, (text_x, text_y))
+
+            floor_text = self.font.render("Floor: --", True, (60, 60, 60))
+            self.screen.blit(floor_text, (text_x, text_y + 30))
+
+            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 10, text_y + 70), 8)
+            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 10, text_y + 70), 8, 1)
+
+            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 35, text_y + 70), 8)
+            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 35, text_y + 70), 8, 1)
