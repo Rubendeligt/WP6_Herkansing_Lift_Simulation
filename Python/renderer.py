@@ -131,3 +131,47 @@ class Renderer:
 
             pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 35, text_y + 70), 8)
             pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 35, text_y + 70), 8, 1)
+
+        center_x = self.screen.get_width() // 2
+        center_y = self.screen.get_height() // 2
+
+        self._draw_center_panel(center_x, center_y)
+
+    def _draw_center_panel(self, panel_center_x, panel_center_y):
+        box = pygame.Rect(panel_center_x - 60, panel_center_y - 80, 120, 160)
+
+        pygame.draw.rect(self.screen, (220, 220, 230), box)
+        pygame.draw.rect(self.screen, (80, 80, 80), box, 2)
+
+        title = self.font.render("kies lift", True, (20, 20, 20))
+        self.screen.blit(title, (box.x + 10, box.y + 10))
+
+        buttons = [
+            ("1", box.x + 15, box.y + 40),
+            ("2", box.x + 65, box.y + 40),
+            ("3", box.x + 15, box.y + 75),
+            ("4", box.x + 65, box.y + 75),
+        ]
+
+        for text, x, y in buttons:
+            r = pygame.Rect(x, y, 30, 30)
+            pygame.draw.rect(self.screen, (240, 240, 250), r)
+            pygame.draw.rect(self.screen, (90, 90, 90), r, 1)
+
+            t = self.font.render(text, True, (20, 20, 20))
+            self.screen.blit(t, t.get_rect(center=r.center))
+
+        stop_rect = pygame.Rect(box.x + 15, box.y + 115, 40, 20)
+        call_rect = pygame.Rect(box.x + 65, box.y + 115, 40, 20)
+
+        pygame.draw.rect(self.screen, (220, 60, 60), stop_rect)
+        pygame.draw.rect(self.screen, (120, 20, 20), stop_rect, 1)
+
+        pygame.draw.rect(self.screen, (210, 215, 245), call_rect)
+        pygame.draw.rect(self.screen, (60, 60, 100), call_rect, 1)
+
+        stop_text = self.font.render("STOP", True, (255, 255, 255))
+        call_text = self.font.render("CALL", True, (20, 20, 20))
+
+        self.screen.blit(stop_text, stop_text.get_rect(center=stop_rect.center))
+        self.screen.blit(call_text, call_text.get_rect(center=call_rect.center))
