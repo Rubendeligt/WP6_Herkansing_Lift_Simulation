@@ -13,6 +13,11 @@ class Renderer:
         self.selected_lift = 0
         self.button_rects = []
 
+        self.stop_rect = None
+        self.call_rect = None
+        self.stop_active = False
+        self.call_active = False
+
     def draw(self, simulation, btn_minus, btn_plus, btn_monitor, current_view, offset=0):
         if current_view == "simulation":
             self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, offset)
@@ -181,17 +186,20 @@ class Renderer:
 
             self.button_rects.append((r, idx))
 
-        stop_rect = pygame.Rect(box.x + 15, box.y + 115, 40, 20)
-        call_rect = pygame.Rect(box.x + 65, box.y + 115, 40, 20)
+        self.stop_rect = pygame.Rect(box.x + 15, box.y + 115, 40, 20)
+        self.call_rect = pygame.Rect(box.x + 65, box.y + 115, 40, 20)
 
-        pygame.draw.rect(self.screen, (220, 60, 60), stop_rect)
-        pygame.draw.rect(self.screen, (120, 20, 20), stop_rect, 1)
+        stop_color = (255, 80, 80) if self.stop_active else (220, 60, 60)
+        call_color = (120, 180, 255) if self.call_active else (210, 215, 245)
 
-        pygame.draw.rect(self.screen, (210, 215, 245), call_rect)
-        pygame.draw.rect(self.screen, (60, 60, 100), call_rect, 1)
+        pygame.draw.rect(self.screen, stop_color, self.stop_rect)
+        pygame.draw.rect(self.screen, (120, 20, 20), self.stop_rect, 1)
+
+        pygame.draw.rect(self.screen, call_color, self.call_rect)
+        pygame.draw.rect(self.screen, (60, 60, 100), self.call_rect, 1)
 
         stop_text = self.font.render("STOP", True, (255, 255, 255))
         call_text = self.font.render("CALL", True, (20, 20, 20))
 
-        self.screen.blit(stop_text, stop_text.get_rect(center=stop_rect.center))
-        self.screen.blit(call_text, call_text.get_rect(center=call_rect.center))
+        self.screen.blit(stop_text, stop_text.get_rect(center=self.stop_rect.center))
+        self.screen.blit(call_text, call_text.get_rect(center=self.call_rect.center))

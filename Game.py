@@ -66,6 +66,12 @@ def main():
                         if rect.collidepoint(mouse_pos):
                             renderer.selected_lift = idx
 
+                    if renderer.stop_rect and renderer.stop_rect.collidepoint(mouse_pos):
+                        renderer.stop_active = not renderer.stop_active
+
+                    if renderer.call_rect and renderer.call_rect.collidepoint(mouse_pos):
+                        renderer.call_active = not renderer.call_active
+
         if current_view == "simulation":
             simulation.update(dt)
             info_panel.update(dt)
