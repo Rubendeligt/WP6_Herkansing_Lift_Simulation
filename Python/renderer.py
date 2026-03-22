@@ -18,6 +18,8 @@ class Renderer:
         self.stop_active = False
         self.call_active = False
 
+        self.big_lift_number = "1"
+
     def draw(self, simulation, btn_minus, btn_plus, btn_monitor, current_view, offset=0):
         if current_view == "simulation":
             self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, offset)
@@ -85,7 +87,7 @@ class Renderer:
             section_rect = pygame.Rect(
                 left_margin,
                 int(top_margin + i * section_height),
-                area_width,
+                int(area_width * 0.55),
                 int(section_height - 15)
             )
 
@@ -147,10 +149,11 @@ class Renderer:
             pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 35, text_y + 70), 8)
             pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 35, text_y + 70), 8, 1)
 
-        center_x = self.screen.get_width() // 2
+        center_x = int(self.screen.get_width() * 0.50)
         center_y = self.screen.get_height() // 2
-
         self._draw_center_panel(center_x, center_y)
+
+        self._draw_big_lift_display()
 
     def _draw_center_panel(self, panel_center_x, panel_center_y):
         box = pygame.Rect(panel_center_x - 60, panel_center_y - 80, 120, 160)
@@ -203,3 +206,49 @@ class Renderer:
 
         self.screen.blit(stop_text, stop_text.get_rect(center=self.stop_rect.center))
         self.screen.blit(call_text, call_text.get_rect(center=self.call_rect.center))
+
+    def _draw_big_lift_display(self):
+        screen_w = self.screen.get_width()
+        screen_h = self.screen.get_height()
+
+        area_x = int(screen_w * 0.68)
+        area_y = 120
+        area_w = int(screen_w * 0.22)
+        area_h = int(screen_h * 0.50)
+
+        frame1 = pygame.Rect(area_x, area_y, area_w, area_h)
+        frame2 = pygame.Rect(area_x + 16, area_y + 16, area_w - 32, area_h - 32)
+        frame3 = pygame.Rect(area_x + 32, area_y + 32, area_w - 64, area_h - 64)
+        inner = pygame.Rect(area_x + 50, area_y + 50, area_w - 100, area_h - 100)
+
+        pygame.draw.rect(self.screen, (0, 235, 255), frame1)
+        pygame.draw.rect(self.screen, (0, 120, 255), frame2)
+        pygame.draw.rect(self.screen, (70, 70, 255), frame3)
+        pygame.draw.rect(self.screen, (245, 245, 245), inner)
+
+        bottom_bar = pygame.Rect(frame1.x, frame1.bottom - 14, frame1.width, 14)
+        pygame.draw.rect(self.screen, (255, 0, 220), bottom_bar)
+
+        for i in range(4):
+            cx = frame3.x + 22 + i * 18
+            cy = frame3.y - 8
+            pygame.draw.circle(self.screen, (190, 200, 220), (cx, cy), 6)
+            pygame.draw.circle(self.screen, (70, 70, 70), (cx, cy), 6, 1)
+
+        big_font_size = max(36, inner.height // 2)
+        big_font = pygame.font.SysFont("arial", big_font_size, bold=True)
+
+        number_text = big_font.render(str(self.selected_lift + 1), True, (40, 40, 70))
+        self.screen.blit(number_text, number_text.get_rect(center=inner.center))
+
+        side_panel = pygame.Rect(inner.x - 22, inner.y + 25, 16, 52)
+        pygame.draw.rect(self.screen, (220, 220, 220), side_panel)
+        pygame.draw.rect(self.screen, (90, 90, 90), side_panel, 1)
+
+        for i in range(4):
+            pygame.draw.circle(
+                self.screen,
+                (100, 120, 180),
+                (side_panel.x + 8, side_panel.y + 8 + i * 11),
+                3
+            )
