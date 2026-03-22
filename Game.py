@@ -61,6 +61,11 @@ def main():
                     elif shifted_plus.collidepoint(mouse_pos):
                         simulation.set_floors(min(MAX_FLOORS, simulation.floors + 1))
 
+                elif current_view == "monitor":
+                    for rect, idx in renderer.button_rects:
+                        if rect.collidepoint(mouse_pos):
+                            renderer.selected_lift = idx
+
         if current_view == "simulation":
             simulation.update(dt)
             info_panel.update(dt)

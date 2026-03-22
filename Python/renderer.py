@@ -10,6 +10,9 @@ class Renderer:
         self.font = font
         self.draw_people = PeopleModule.draw_people
 
+        self.selected_lift = 0
+        self.button_rects = []
+
     def draw(self, simulation, btn_minus, btn_plus, btn_monitor, current_view, offset=0):
         if current_view == "simulation":
             self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, offset)
@@ -81,8 +84,15 @@ class Renderer:
                 int(section_height - 15)
             )
 
-            pygame.draw.rect(self.screen, (210, 214, 222), section_rect)
-            pygame.draw.rect(self.screen, (80, 84, 92), section_rect, 2)
+            if self.selected_lift == i:
+                section_color = (195, 215, 255)
+                border_color = (60, 100, 190)
+            else:
+                section_color = (210, 214, 222)
+                border_color = (80, 84, 92)
+
+            pygame.draw.rect(self.screen, section_color, section_rect)
+            pygame.draw.rect(self.screen, border_color, section_rect, 2)
 
             shaft_rect = pygame.Rect(
                 section_rect.x + 25,
@@ -143,23 +153,33 @@ class Renderer:
         pygame.draw.rect(self.screen, (220, 220, 230), box)
         pygame.draw.rect(self.screen, (80, 80, 80), box, 2)
 
-        title = self.font.render("kies lift", True, (20, 20, 20))
+        title = self.font.render("WornVator", True, (20, 20, 20))
         self.screen.blit(title, (box.x + 10, box.y + 10))
 
+        self.button_rects.clear()
+
         buttons = [
-            ("1", box.x + 15, box.y + 40),
-            ("2", box.x + 65, box.y + 40),
-            ("3", box.x + 15, box.y + 75),
-            ("4", box.x + 65, box.y + 75),
+            ("1", box.x + 15, box.y + 40, 0),
+            ("2", box.x + 65, box.y + 40, 1),
+            ("3", box.x + 15, box.y + 75, 2),
+            ("4", box.x + 65, box.y + 75, 3),
         ]
 
-        for text, x, y in buttons:
+        for text, x, y, idx in buttons:
             r = pygame.Rect(x, y, 30, 30)
-            pygame.draw.rect(self.screen, (240, 240, 250), r)
+
+            if self.selected_lift == idx:
+                color = (100, 160, 255)
+            else:
+                color = (240, 240, 250)
+
+            pygame.draw.rect(self.screen, color, r)
             pygame.draw.rect(self.screen, (90, 90, 90), r, 1)
 
             t = self.font.render(text, True, (20, 20, 20))
             self.screen.blit(t, t.get_rect(center=r.center))
+
+            self.button_rects.append((r, idx))
 
         stop_rect = pygame.Rect(box.x + 15, box.y + 115, 40, 20)
         call_rect = pygame.Rect(box.x + 65, box.y + 115, 40, 20)
