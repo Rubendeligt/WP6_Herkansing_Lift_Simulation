@@ -256,6 +256,53 @@ class Renderer:
             pygame.draw.circle(self.screen, (190, 200, 220), (cx, cy), 6)
             pygame.draw.circle(self.screen, (70, 70, 70), (cx, cy), 6, 1)
 
+        cabin_area = inner.inflate(-20, -20)
+        pygame.draw.rect(self.screen, (225, 225, 230), cabin_area)
+
+        door_gap = int(cabin_area.width * 0.28) if self.call_active else 0
+        half_width = cabin_area.width // 2
+
+        left_door = pygame.Rect(
+            cabin_area.x,
+            cabin_area.y,
+            half_width - door_gap // 2,
+            cabin_area.height
+        )
+
+        right_door = pygame.Rect(
+            cabin_area.centerx + door_gap // 2,
+            cabin_area.y,
+            half_width - door_gap // 2,
+            cabin_area.height
+        )
+
+        door_color = (210, 210, 218)
+        door_border = (110, 110, 120)
+
+        pygame.draw.rect(self.screen, door_color, left_door)
+        pygame.draw.rect(self.screen, door_border, left_door, 2)
+
+        pygame.draw.rect(self.screen, door_color, right_door)
+        pygame.draw.rect(self.screen, door_border, right_door, 2)
+
+        if left_door.width > 8:
+            pygame.draw.line(
+                self.screen,
+                (90, 90, 100),
+                (left_door.right - 6, left_door.y + 15),
+                (left_door.right - 6, left_door.bottom - 15),
+                2
+            )
+
+        if right_door.width > 8:
+            pygame.draw.line(
+                self.screen,
+                (90, 90, 100),
+                (right_door.x + 6, right_door.y + 15),
+                (right_door.x + 6, right_door.bottom - 15),
+                2
+            )
+
         big_font_size = max(36, inner.height // 2)
         big_font = pygame.font.SysFont("arial", big_font_size, bold=True)
 
@@ -283,16 +330,16 @@ class Renderer:
 
         if self.stop_active:
             indicator_color = (230, 70, 70)
-            status_text = "Door Status: STOP"
+            status_text = "STOP"
             detail_text = "Lift paused"
         elif self.call_active:
             indicator_color = (80, 210, 120)
-            status_text = "Door Status: OPEN"
-            detail_text = "Call active"
+            status_text = "OPEN"
+            detail_text = "Door open"
         else:
             indicator_color = (160, 160, 170)
-            status_text = "Door Status: CLOSED"
-            detail_text = "Idle"
+            status_text = "CLOSED"
+            detail_text = "Door closed"
 
         indicator_rect = pygame.Rect(status_box.x + 14, status_box.y + 10, 22, 22)
         pygame.draw.ellipse(self.screen, indicator_color, indicator_rect)
