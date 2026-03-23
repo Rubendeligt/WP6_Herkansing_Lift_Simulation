@@ -5,7 +5,11 @@ from Python.Variables import (
     BOTTOM_MARGIN,
     PERSON_RADIUS,
     PERSON_SPEED_PX_PER_SEC,
-    SPAWN_CHANCE_PER_SEC
+    SPAWN_CHANCE_PER_SEC,
+    SPAWN_RECT_X,
+    SPAWN_RECT_Y,
+    SPAWN_RECT_W,
+    SPAWN_RECT_H,
 )
 
 
@@ -46,12 +50,13 @@ def maybe_spawn_person(
         dest_floor = rng.randrange(0, floors)
         while dest_floor == start_floor and floors > 1:
             dest_floor = rng.randrange(0, floors)
+        spawn_x = SPAWN_RECT_X
 
         people.append({
             "id": next_person_id,
             "floor": start_floor,
             "dest": dest_floor,
-            "x": float(rest_x),
+            "x": float(spawn_x),
             "y": float(y),
             "state": "WALKING",
             "elevator_id": None,
@@ -76,6 +81,7 @@ def update_people(
 ) -> None:
     spacing = PERSON_RADIUS * 2 + 6
     waiting_lines.clear()
+    exit_x = SPAWN_RECT_X
 
     ready_lifts_by_floor = {}
     for lift in lifts:
@@ -167,7 +173,21 @@ def update_people(
 
         if p["state"] == "EXITING":
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
-            p["x"] += PERSON_SPEED_PX_PER_SEC * dt
+
+            if p["x"] < exit_x:
+                p["x"] += PERSON_SPEED_PX_PER_SEC * dt
+                if p["x"] >= exit_x:
+                    p["x"] = float(exit_x)
+                    p["state"] = "DONE"
+            elif p["x"] > exit_x:
+                p["x"] -= PERSON_SPEED_PX_PER_SEC * dt
+                if p["x"] <= exit_x:
+                    p["x"] = float(exit_x)
+                    p["state"] = "DONE"
+            else:
+                p["state"] = "DONE"
+
+    people[:] = [p for p in people if p["state"] != "DONE"]
 
 
 def draw_people(screen: pygame.Surface, people: list) -> None:
@@ -179,6 +199,8 @@ def draw_people(screen: pygame.Surface, people: list) -> None:
             color = (255, 220, 90)
         elif p["state"] == "BOARDING":
             color = (255, 160, 90)
+        elif p["state"] == "EXITING":
+            color = (180, 220, 255)
         else:
             color = (255, 255, 255)
 

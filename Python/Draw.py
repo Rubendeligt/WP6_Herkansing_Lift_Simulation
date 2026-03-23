@@ -1,5 +1,14 @@
 import pygame
-from Python.Variables import GRAY, WHITE, TOP_MARGIN, BOTTOM_MARGIN
+from Python.Variables import (
+    GRAY,
+    WHITE,
+    TOP_MARGIN,
+    BOTTOM_MARGIN,
+    SPAWN_RECT_X,
+    SPAWN_RECT_Y,
+    SPAWN_RECT_W,
+    SPAWN_RECT_H,
+)
 from Python.grafiek import draw_wait_time_graph, draw_people_graph
 
 def draw_button(screen: pygame.Surface, FONT: pygame.font.Font, rect: pygame.Rect, text: str) -> None:
@@ -94,8 +103,7 @@ def draw_building(
 
     top = TOP_MARGIN
     bottom = TOP_MARGIN + building_height
-
-    right = screen.get_width() - 200 
+    right = screen.get_width() - 200
 
     pygame.draw.line(
         screen,
@@ -103,8 +111,12 @@ def draw_building(
         (right, top),
         (right, bottom),
         2
-)
-    pygame.draw.rect(screen, (0, 0, 0), (1400, 50, 25, 802))
+    )
+    pygame.draw.rect(
+        screen,
+        (0, 0, 0),
+        (SPAWN_RECT_X, SPAWN_RECT_Y, SPAWN_RECT_W, SPAWN_RECT_H)
+    )
 def draw_information_panel(screen, info_panel, font, simulation):
     button = info_panel.get_button_rect()
     pygame.draw.rect(screen, (90, 90, 90), button, border_radius=6)
