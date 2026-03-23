@@ -25,6 +25,17 @@ def draw_building(
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     floor_height = building_height / floors
 
+    left = shaft_positions[0]
+    right = screen.get_width() - 200
+    corridor_x = shaft_positions[-1] + shaft_w
+    corridor_rect = pygame.Rect(
+        int(corridor_x),
+        int(TOP_MARGIN),
+        int(right - corridor_x),
+        int(building_height)
+    )
+    pygame.draw.rect(screen, (230, 222, 220), corridor_rect)
+
     for row in range(floors):
         y = TOP_MARGIN + row * floor_height
 
@@ -93,6 +104,7 @@ def draw_building(
         (right, bottom),
         2
 )
+    pygame.draw.rect(screen, (0, 0, 0), (1400, 50, 25, 802))
 def draw_information_panel(screen, info_panel, font, simulation):
     button = info_panel.get_button_rect()
     pygame.draw.rect(screen, (90, 90, 90), button, border_radius=6)
