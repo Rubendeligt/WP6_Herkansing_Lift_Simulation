@@ -161,7 +161,7 @@ class Renderer:
         pygame.draw.rect(self.screen, (220, 220, 230), box)
         pygame.draw.rect(self.screen, (80, 80, 80), box, 2)
 
-        title = self.font.render("WornVator", True, (20, 20, 20))
+        title = self.font.render("H Rotterdam", True, (20, 20, 20))
         self.screen.blit(title, (box.x + 10, box.y + 10))
 
         self.button_rects.clear()
@@ -252,3 +252,34 @@ class Renderer:
                 (side_panel.x + 8, side_panel.y + 8 + i * 11),
                 3
             )
+
+        self._draw_door_status_indicator(frame1, frame2, inner)
+
+    def _draw_door_status_indicator(self, frame1, frame2, inner):
+        status_box = pygame.Rect(frame1.x, frame1.y + frame1.height + 18, frame1.width, 42)
+        pygame.draw.rect(self.screen, (215, 218, 225), status_box)
+        pygame.draw.rect(self.screen, (90, 90, 100), status_box, 2)
+
+        if self.stop_active:
+            indicator_color = (230, 70, 70)
+            status_text = "Door Status: STOP"
+            detail_text = "Lift paused"
+        elif self.call_active:
+            indicator_color = (80, 210, 120)
+            status_text = "Door Status: OPEN"
+            detail_text = "Call active"
+        else:
+            indicator_color = (160, 160, 170)
+            status_text = "Door Status: CLOSED"
+            detail_text = "Idle"
+
+        indicator_rect = pygame.Rect(status_box.x + 14, status_box.y + 10, 22, 22)
+        pygame.draw.ellipse(self.screen, indicator_color, indicator_rect)
+        pygame.draw.ellipse(self.screen, (70, 70, 70), indicator_rect, 1)
+
+        label = self.font.render(status_text, True, (30, 30, 30))
+        self.screen.blit(label, (indicator_rect.right + 12, status_box.y + 5))
+
+        small_font = pygame.font.SysFont("arial", 14)
+        detail = small_font.render(detail_text, True, (70, 70, 70))
+        self.screen.blit(detail, (indicator_rect.right + 12, status_box.y + 22))
