@@ -84,7 +84,7 @@ def draw_building(
     top = TOP_MARGIN
     bottom = TOP_MARGIN + building_height
 
-    right = screen.get_width() - 450 
+    right = screen.get_width() - 200 
 
     pygame.draw.line(
         screen,
