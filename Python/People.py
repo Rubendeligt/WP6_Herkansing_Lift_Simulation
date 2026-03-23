@@ -202,6 +202,6 @@ def draw_people(screen: pygame.Surface, people: list) -> None:
         elif p["state"] == "EXITING":
             color = (180, 220, 255)
         else:
-            color = (255, 255, 255)
+            color = (41, 35, 34)
 
         pygame.draw.circle(screen, color, (int(p["x"]), int(p["y"])), PERSON_RADIUS)
