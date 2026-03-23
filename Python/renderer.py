@@ -221,13 +221,34 @@ class Renderer:
         frame3 = pygame.Rect(area_x + 32, area_y + 32, area_w - 64, area_h - 64)
         inner = pygame.Rect(area_x + 50, area_y + 50, area_w - 100, area_h - 100)
 
-        pygame.draw.rect(self.screen, (0, 235, 255), frame1)
-        pygame.draw.rect(self.screen, (0, 120, 255), frame2)
-        pygame.draw.rect(self.screen, (70, 70, 255), frame3)
+        if self.selected_lift == 0:
+            frame1_color = (0, 235, 255)
+            frame2_color = (0, 120, 255)
+            frame3_color = (70, 70, 255)
+            bottom_color = (255, 0, 220)
+        elif self.selected_lift == 1:
+            frame1_color = (255, 220, 0)
+            frame2_color = (255, 150, 0)
+            frame3_color = (220, 90, 0)
+            bottom_color = (255, 80, 80)
+        elif self.selected_lift == 2:
+            frame1_color = (120, 255, 140)
+            frame2_color = (40, 200, 100)
+            frame3_color = (20, 140, 70)
+            bottom_color = (0, 180, 120)
+        else:
+            frame1_color = (255, 170, 220)
+            frame2_color = (220, 100, 180)
+            frame3_color = (150, 60, 140)
+            bottom_color = (120, 60, 180)
+
+        pygame.draw.rect(self.screen, frame1_color, frame1)
+        pygame.draw.rect(self.screen, frame2_color, frame2)
+        pygame.draw.rect(self.screen, frame3_color, frame3)
         pygame.draw.rect(self.screen, (245, 245, 245), inner)
 
         bottom_bar = pygame.Rect(frame1.x, frame1.bottom - 14, frame1.width, 14)
-        pygame.draw.rect(self.screen, (255, 0, 220), bottom_bar)
+        pygame.draw.rect(self.screen, bottom_color, bottom_bar)
 
         for i in range(4):
             cx = frame3.x + 22 + i * 18
@@ -248,7 +269,7 @@ class Renderer:
         for i in range(4):
             pygame.draw.circle(
                 self.screen,
-                (100, 120, 180),
+                frame2_color,
                 (side_panel.x + 8, side_panel.y + 8 + i * 11),
                 3
             )
