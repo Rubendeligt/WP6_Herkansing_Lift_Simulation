@@ -24,10 +24,10 @@ class Simulation:
         self.normal_speed = LIFT_SPEED_FLOORS_PER_SEC
         self.fast_speed = LIFT_SPEED_FLOORS_PER_SEC * 2.2
 
-        self.shaft_w = 45
-        self.lift_w = self.shaft_w
+        self.shaft_w = 70
+        self.lift_w = int(self.shaft_w * 0.85)
         self.lift_h = self.building_height / self.floors
-        self.shaft_gap = 10
+        self.shaft_gap = 20
         self.start_x = LEFT_MARGIN + 20
 
         self.shaft_positions = [
@@ -78,7 +78,7 @@ class Simulation:
                 "speed": speed,
                 "floor": start_floor,
                 "ready": True,
-                "people_x": int(self.shaft_positions[i] + self.lift_w / 2)
+                "people_x": int(self.shaft_positions[i] + self.shaft_w / 2)
             })
 
         return lifts
@@ -138,7 +138,7 @@ class Simulation:
         )
 
         for lift in self.lifts:
-            lift_x_for_people = lift["shaft_x"] + lift["lift_w"] / 2
+            lift_x_for_people = lift["shaft_x"] + lift["shaft_w"] / 2
             lift["people_x"] = int(lift_x_for_people)
 
             lift_blocked = any(
