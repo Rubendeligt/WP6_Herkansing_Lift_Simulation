@@ -67,6 +67,20 @@ def draw_building(
         label = FONT.render(f"Floor {floors - floor - 1}", True, WHITE)
         screen.blit(label, (20, y + 5))
 
+    for floor in range(floors + 1):
+        y = TOP_MARGIN + floor * floor_height
+
+        left = shaft_positions[0]
+        right = shaft_positions[-1] + shaft_w + 600
+
+        pygame.draw.line(
+            screen,
+            (120, 120, 130),
+            (left, y),
+            (right, y),
+            2
+        )
+
 def draw_information_panel(screen, info_panel, font, simulation):
     button = info_panel.get_button_rect()
     pygame.draw.rect(screen, (90, 90, 90), button, border_radius=6)
