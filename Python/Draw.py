@@ -137,12 +137,6 @@ def draw_information_panel(screen, info_panel, font, simulation):
     lifts = font.render(f"Lifts: {simulation.total_lifts}", True, (200, 200, 200))
     screen.blit(lifts, (panel.x + 20, 105))
 
-    normal_lifts = font.render(f"Normal lifts: {simulation.normal_lifts}", True, (200, 200, 200))
-    screen.blit(normal_lifts, (panel.x + 20, 140))
-
-    fast_lifts = font.render(f"Fast lifts: {simulation.fast_lifts}", True, (200, 200, 200))
-    screen.blit(fast_lifts, (panel.x + 20, 175))
-
     people = font.render(f"People: {len(simulation.people)}", True, (200, 200, 200))
     screen.blit(people, (panel.x + 20, 150))
 
