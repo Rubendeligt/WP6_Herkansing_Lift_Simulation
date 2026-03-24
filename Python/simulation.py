@@ -17,10 +17,6 @@ class Simulation:
 
         self.building_height = self.height - TOP_MARGIN - BOTTOM_MARGIN
 
-        self.total_lifts = 8
-        self.normal_lifts = 2
-        self.fast_lifts = 6
-
         self.normal_speed = LIFT_SPEED_FLOORS_PER_SEC
         self.fast_speed = LIFT_SPEED_FLOORS_PER_SEC * 2.2
 
@@ -30,16 +26,12 @@ class Simulation:
         self.shaft_gap = 20
         self.start_x = LEFT_MARGIN + 20
 
-        self.shaft_positions = [
-            self.start_x + i * (self.shaft_w + self.shaft_gap)
-            for i in range(self.total_lifts)
-        ]
-
-        self.right_margin = self.shaft_positions[-1] + self.shaft_w + 40
-        self.rest_x = self.right_margin + 120
-        self.call_x = self.right_margin + 25
-
-        self.lifts = self._create_lifts()
+        self.lifts = []
+        self.next_lift_id = 0
+        self.add_lift("normal")
+        self.add_lift("normal")
+        for _ in range(6):
+            self.add_lift("fast")
 
         self.rng = random.Random(7)
         self.people = []
@@ -59,29 +51,70 @@ class Simulation:
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
 
-    def _create_lifts(self) -> list[dict]:
-        lifts = []
+    def _recalculate_lift_layout(self) -> None:
+        self.total_lifts = len(self.lifts)
+        self.normal_lifts = sum(1 for lift in self.lifts if lift["type"] == "normal")
+        self.fast_lifts = sum(1 for lift in self.lifts if lift["type"] == "fast")
 
-        for i in range(self.total_lifts):
-            speed = self.normal_speed if i < self.normal_lifts else self.fast_speed
-            start_floor = min(self.floors - 1, int(i * self.floors / self.total_lifts))
-            start_dir = 1 if i % 2 == 0 else -1
+        self.shaft_positions = [
+            self.start_x + i * (self.shaft_w + self.shaft_gap)
+            for i in range(self.total_lifts)
+        ]
 
-            lifts.append({
-                "id": i,
-                "shaft_x": self.shaft_positions[i],
-                "shaft_w": self.shaft_w,
-                "lift_w": self.lift_w,
-                "lift_h": self.lift_h,
-                "floor_pos": float(start_floor),
-                "dir": start_dir,
-                "speed": speed,
-                "floor": start_floor,
-                "ready": True,
-                "people_x": int(self.shaft_positions[i] + self.shaft_w / 2)
-            })
+        for i, lift in enumerate(self.lifts):
+            lift["shaft_x"] = self.shaft_positions[i]
+            lift["shaft_w"] = self.shaft_w
+            lift["lift_w"] = self.lift_w
+            lift["lift_h"] = self.lift_h
+            lift["people_x"] = int(self.shaft_positions[i] + self.shaft_w / 2)
 
-        return lifts
+        if self.total_lifts > 0:
+            self.right_margin = self.shaft_positions[-1] + self.shaft_w + 40
+        else:
+            self.right_margin = self.start_x + 40
+
+        self.rest_x = self.right_margin + 120
+        self.call_x = self.right_margin + 25
+
+    def add_lift(self, lift_type: str) -> None:
+        if lift_type not in ("normal", "fast"):
+            return
+
+        speed = self.normal_speed if lift_type == "normal" else self.fast_speed
+
+        new_lift = {
+            "id": self.next_lift_id,
+            "type": lift_type,
+            "shaft_x": 0,
+            "shaft_w": self.shaft_w,
+            "lift_w": self.lift_w,
+            "lift_h": self.lift_h,
+            "floor_pos": float(min(self.floors - 1, len(self.lifts))),
+            "dir": 1 if len(self.lifts) % 2 == 0 else -1,
+            "speed": speed,
+            "floor": min(self.floors - 1, len(self.lifts)),
+            "ready": True,
+            "people_x": 0,
+        }
+
+        self.next_lift_id += 1
+        self.lifts.append(new_lift)
+        self._recalculate_lift_layout()
+
+    def remove_last_lift(self) -> None:
+        if len(self.lifts) <= 1:
+            return
+
+        removed_lift = self.lifts.pop()
+        for person in self.people:
+            if person.get("elevator_id") == removed_lift["id"]:
+                person["elevator_id"] = None
+                if person["state"] == "IN_LIFT":
+                    person["state"] = "WAITING"
+                elif person["state"] in ("BOARDING", "EXITING"):
+                    person["state"] = "WAITING"
+
+        self._recalculate_lift_layout()
 
     def set_floors(self, floors: int) -> None:
         self.floors = floors
@@ -97,6 +130,7 @@ class Simulation:
             lift["lift_h"] = self.lift_h
             lift["floor"] = int(round(lift["floor_pos"]))
 
+        self._recalculate_lift_layout()
     def update(self, dt: float) -> None:
         self.time_minutes += dt * self.time_speed
         if self.time_minutes > 21 * 60:

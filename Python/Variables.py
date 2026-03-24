@@ -39,7 +39,19 @@ def make_buttons(width: int):
         BTN_W,
         BTN_H
     )
-
+    btn_plus = pygame.Rect(
+        width - BTN_W - 40,
+        30,
+        BTN_W,
+        BTN_H
+    )
+    def make_buttons(width: int):
+        btn_minus = pygame.Rect(
+        width - 2 * BTN_W - BTN_GAP - 40,
+        30,
+        BTN_W,
+        BTN_H
+    )
     btn_plus = pygame.Rect(
         width - BTN_W - 40,
         30,
@@ -54,4 +66,32 @@ def make_buttons(width: int):
         MONITOR_BTN_H
     )
 
-    return btn_minus, btn_plus, btn_monitor
+    btn_add_normal_lift = pygame.Rect(
+        width - 220,
+        190,
+        180,
+        45
+    )
+
+    btn_add_fast_lift = pygame.Rect(
+        width - 220,
+        245,
+        180,
+        45
+    )
+
+    btn_remove_lift = pygame.Rect(
+        width - 220,
+        300,
+        180,
+        45
+    )
+
+    return (
+        btn_minus,
+        btn_plus,
+        btn_monitor,
+        btn_add_normal_lift,
+        btn_add_fast_lift,
+        btn_remove_lift
+    )
