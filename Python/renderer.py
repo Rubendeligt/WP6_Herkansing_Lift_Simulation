@@ -20,13 +20,13 @@ class Renderer:
 
         self.big_lift_number = "1"
 
-    def draw(self, simulation, btn_minus, btn_plus, btn_monitor, current_view, offset=0):
+    def draw(self, simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift,current_view, offset=0):
         if current_view == "simulation":
-            self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, offset)
+            self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift, offset)
         else:
-            self.draw_monitor(btn_monitor, offset)
+            self.draw_monitor(simulation, btn_monitor, offset)
 
-    def draw_simulation(self, simulation, btn_minus, btn_plus, btn_monitor, offset=0):
+    def draw_simulation(self, simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift, offset=0):
         self.screen.fill((230, 230, 230))
 
         draw_building(
@@ -51,7 +51,8 @@ class Renderer:
                 simulation.floors,
                 simulation.height,
                 passenger_count,
-                self.font
+                self.font,
+                lift["type"]
             )
 
         self.draw_people(self.screen, simulation.people)
@@ -59,16 +60,37 @@ class Renderer:
         shifted_minus = btn_minus.move(-offset, 0)
         shifted_plus = btn_plus.move(-offset, 0)
         shifted_monitor = btn_monitor.move(-offset, 0)
+        shifted_add_normal_lift = btn_add_normal_lift.move(-offset, 0)
+        shifted_add_fast_lift = btn_add_fast_lift.move(-offset, 0)
+        shifted_remove_lift = btn_remove_lift.move(-offset, 0)
 
         draw_button(self.screen, self.font, shifted_minus, "-")
         draw_button(self.screen, self.font, shifted_plus, "+")
         draw_button(self.screen, self.font, shifted_monitor, "tweede scherm")
+        draw_button(self.screen, self.font, shifted_add_normal_lift, "+ normal")
+        draw_button(self.screen, self.font, shifted_add_fast_lift, "+ fast")
+        draw_button(self.screen, self.font, shifted_remove_lift, "- lift")
 
-    def draw_monitor(self, btn_monitor, offset=0):
+    def draw_monitor(self, simulation, btn_monitor, offset=0):
         self.screen.fill((228, 230, 220))
 
         shifted_monitor = btn_monitor.move(-offset, 0)
         draw_button(self.screen, self.font, shifted_monitor, "Back")
+
+        total_lifts = len(simulation.lifts)
+
+        if total_lifts == 0:
+            title_bar = pygame.Rect(0, 0, self.screen.get_width(), 50)
+            pygame.draw.rect(self.screen, (70, 92, 170), title_bar)
+
+            title = self.font.render("Lift Monitor", True, (255, 255, 255))
+            self.screen.blit(title, (20, 15))
+            return
+
+        if self.selected_lift >= total_lifts:
+            self.selected_lift = total_lifts - 1
+        if self.selected_lift < 0:
+            self.selected_lift = 0
 
         title_bar = pygame.Rect(0, 0, self.screen.get_width(), 50)
         pygame.draw.rect(self.screen, (70, 92, 170), title_bar)
@@ -151,12 +173,11 @@ class Renderer:
 
         center_x = int(self.screen.get_width() * 0.50)
         center_y = self.screen.get_height() // 2
-        self._draw_center_panel(center_x, center_y)
-
-        self._draw_big_lift_display()
-
-    def _draw_center_panel(self, panel_center_x, panel_center_y):
-        box = pygame.Rect(panel_center_x - 60, panel_center_y - 80, 120, 160)
+        self._draw_center_panel(total_lifts, center_x, center_y)
+        self._draw_big_lift_display(simulation)
+    def _draw_center_panel(self, total_lifts, panel_center_x, panel_center_y):
+        box_height = 160 if total_lifts <= 4 else 210
+        box = pygame.Rect(panel_center_x - 80, panel_center_y - box_height // 2, 160, box_height)
 
         pygame.draw.rect(self.screen, (220, 220, 230), box)
         pygame.draw.rect(self.screen, (80, 80, 80), box, 2)
@@ -184,7 +205,7 @@ class Renderer:
             pygame.draw.rect(self.screen, color, r)
             pygame.draw.rect(self.screen, (90, 90, 90), r, 1)
 
-            t = self.font.render(text, True, (20, 20, 20))
+            t = self.font.render(str(idx + 1), True, (20, 20, 20))
             self.screen.blit(t, t.get_rect(center=r.center))
 
             self.button_rects.append((r, idx))
@@ -207,10 +228,15 @@ class Renderer:
         self.screen.blit(stop_text, stop_text.get_rect(center=self.stop_rect.center))
         self.screen.blit(call_text, call_text.get_rect(center=self.call_rect.center))
 
-    def _draw_big_lift_display(self):
+    def _draw_big_lift_display(self, simulation):
+        total_lifts = len(simulation.lifts)
+        if total_lifts == 0:
+            return
+        if self.selected_lift >= total_lifts:
+            self.selected_lift = total_lifts - 1
         screen_w = self.screen.get_width()
         screen_h = self.screen.get_height()
-
+        lift = simulation.lifts[self.selected_lift]
         area_x = int(screen_w * 0.68)
         area_y = 120
         area_w = int(screen_w * 0.22)
@@ -231,11 +257,6 @@ class Renderer:
             frame2_color = (255, 150, 0)
             frame3_color = (220, 90, 0)
             bottom_color = (255, 80, 80)
-        elif self.selected_lift == 2:
-            frame1_color = (120, 255, 140)
-            frame2_color = (40, 200, 100)
-            frame3_color = (20, 140, 70)
-            bottom_color = (0, 180, 120)
         else:
             frame1_color = (255, 170, 220)
             frame2_color = (220, 100, 180)
@@ -321,9 +342,18 @@ class Renderer:
                 3
             )
 
-        self._draw_door_status_indicator(frame1, frame2, inner)
+        info_y = frame1.bottom + 70
+        type_text = self.font.render(f"Type: {lift['type']}", True, (30, 30, 30))
+        floor_text = self.font.render(f"Floor: {lift['floor']}", True, (30, 30, 30))
+        passengers = simulation.get_passenger_count(lift["id"])
+        people_text = self.font.render(f"People: {passengers}", True, (30, 30, 30))
+        self.screen.blit(type_text, (frame1.x, info_y))
+        self.screen.blit(floor_text, (frame1.x, info_y + 28))
+        self.screen.blit(people_text, (frame1.x, info_y + 56))
 
-    def _draw_door_status_indicator(self, frame1, frame2, inner):
+        self._draw_door_status_indicator(frame1)
+
+    def _draw_door_status_indicator(self, frame1):
         status_box = pygame.Rect(frame1.x, frame1.y + frame1.height + 18, frame1.width, 42)
         pygame.draw.rect(self.screen, (215, 218, 225), status_box)
         pygame.draw.rect(self.screen, (90, 90, 100), status_box, 2)

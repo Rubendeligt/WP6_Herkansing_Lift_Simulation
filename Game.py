@@ -23,7 +23,7 @@ def main():
     renderer = Renderer(screen, font)
     info_panel = InformationPanel(width, height)
 
-    btn_minus, btn_plus, btn_monitor = make_buttons(width)
+    btn_minus, btn_plus, btn_monitor, btn_add_normal_lift,btn_add_fast_lift, btn_remove_lift = make_buttons(width)
 
     current_view = "simulation"
     running = True
@@ -36,6 +36,9 @@ def main():
         shifted_minus = btn_minus.move(-offset, 0)
         shifted_plus = btn_plus.move(-offset, 0)
         shifted_monitor = btn_monitor.move(-offset, 0)
+        shifted_add_normal_lift = btn_add_normal_lift.move(-offset, 0)
+        shifted_add_fast_lift = btn_add_fast_lift.move(-offset, 0)
+        shifted_remove_lift = btn_remove_lift.move(-offset, 0)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,6 +64,15 @@ def main():
                     elif shifted_plus.collidepoint(mouse_pos):
                         simulation.set_floors(min(MAX_FLOORS, simulation.floors + 1))
 
+                    elif shifted_add_normal_lift.collidepoint(mouse_pos):
+                        simulation.add_lift("normal")
+
+                    elif shifted_add_fast_lift.collidepoint(mouse_pos):
+                        simulation.add_lift("fast")
+
+                    elif shifted_remove_lift.collidepoint(mouse_pos):
+                        simulation.remove_last_lift()
+
                 elif current_view == "monitor":
                     for rect, idx in renderer.button_rects:
                         if rect.collidepoint(mouse_pos):
@@ -76,7 +88,7 @@ def main():
             simulation.update(dt)
             info_panel.update(dt)
 
-        renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, current_view, offset)
+        renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift,btn_add_fast_lift, btn_remove_lift, current_view, offset)
 
         if current_view == "simulation":
             draw_information_panel(screen, info_panel, font, simulation)

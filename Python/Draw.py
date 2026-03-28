@@ -1,5 +1,14 @@
 import pygame
-from Python.Variables import GRAY, WHITE, TOP_MARGIN, BOTTOM_MARGIN
+from Python.Variables import (
+    GRAY,
+    WHITE,
+    TOP_MARGIN,
+    BOTTOM_MARGIN,
+    SPAWN_RECT_X,
+    SPAWN_RECT_Y,
+    SPAWN_RECT_W,
+    SPAWN_RECT_H,
+)
 from Python.grafiek import draw_wait_time_graph, draw_people_graph
 
 def draw_button(screen: pygame.Surface, FONT: pygame.font.Font, rect: pygame.Rect, text: str) -> None:
@@ -24,6 +33,17 @@ def draw_building(
 ) -> None:
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     floor_height = building_height / floors
+
+    left = shaft_positions[0]
+    right = screen.get_width() - 200
+    corridor_x = shaft_positions[-1] + shaft_w
+    corridor_rect = pygame.Rect(
+        int(corridor_x),
+        int(TOP_MARGIN),
+        int(right - corridor_x),
+        int(building_height)
+    )
+    pygame.draw.rect(screen, (230, 222, 220), corridor_rect)
 
     for row in range(floors):
         y = TOP_MARGIN + row * floor_height
@@ -67,6 +87,36 @@ def draw_building(
         label = FONT.render(f"Floor {floors - floor - 1}", True, WHITE)
         screen.blit(label, (20, y + 5))
 
+    for floor in range(floors + 1):
+        y = TOP_MARGIN + floor * floor_height
+
+        left = shaft_positions[0]
+        right = shaft_positions[-1] + shaft_w + 600
+
+        pygame.draw.line(
+            screen,
+            (120, 120, 130),
+            (left, y),
+            (right, y),
+            2
+        )
+
+    top = TOP_MARGIN
+    bottom = TOP_MARGIN + building_height
+    right = screen.get_width() - 200
+
+    pygame.draw.line(
+        screen,
+        (120, 120, 130),
+        (right, top),
+        (right, bottom),
+        2
+    )
+    pygame.draw.rect(
+        screen,
+        (0, 0, 0),
+        (SPAWN_RECT_X, SPAWN_RECT_Y, SPAWN_RECT_W, SPAWN_RECT_H)
+    )
 def draw_information_panel(screen, info_panel, font, simulation):
     button = info_panel.get_button_rect()
     pygame.draw.rect(screen, (90, 90, 90), button, border_radius=6)
@@ -85,7 +135,7 @@ def draw_information_panel(screen, info_panel, font, simulation):
     screen.blit(floors, (panel.x + 20, 70))
 
     lifts = font.render(f"Lifts: {simulation.total_lifts}", True, (200, 200, 200))
-    screen.blit(lifts, (panel.x + 20, 110))
+    screen.blit(lifts, (panel.x + 20, 105))
 
     people = font.render(f"People: {len(simulation.people)}", True, (200, 200, 200))
     screen.blit(people, (panel.x + 20, 150))
