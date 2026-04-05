@@ -23,7 +23,7 @@ def main():
     renderer = Renderer(screen, font)
     info_panel = InformationPanel(width, height)
 
-    btn_minus, btn_plus, btn_monitor, btn_add_normal_lift,btn_add_fast_lift, btn_remove_lift = make_buttons(width)
+    btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift = make_buttons(width)
 
     current_view = "simulation"
     running = True
@@ -84,11 +84,28 @@ def main():
                     if renderer.call_rect and renderer.call_rect.collidepoint(mouse_pos):
                         renderer.call_active = not renderer.call_active
 
+                        if renderer.call_active:
+                            renderer.small_lift_targets[renderer.selected_lift] = 0.10
+                        else:
+                            renderer.small_lift_targets[renderer.selected_lift] = 0.45
+
         if current_view == "simulation":
             simulation.update(dt)
             info_panel.update(dt)
 
-        renderer.draw(simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift,btn_add_fast_lift, btn_remove_lift, current_view, offset)
+        renderer.update_animations(dt)
+
+        renderer.draw(
+            simulation,
+            btn_minus,
+            btn_plus,
+            btn_monitor,
+            btn_add_normal_lift,
+            btn_add_fast_lift,
+            btn_remove_lift,
+            current_view,
+            offset
+        )
 
         if current_view == "simulation":
             draw_information_panel(screen, info_panel, font, simulation)

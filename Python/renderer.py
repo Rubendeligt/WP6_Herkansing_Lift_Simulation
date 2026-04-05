@@ -20,11 +20,50 @@ class Renderer:
 
         self.big_lift_number = "1"
 
-    def draw(self, simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift,current_view, offset=0):
+        # Animatie voor kleine liften links
+        self.small_lift_positions = [0.45, 0.45, 0.45, 0.45]
+        self.small_lift_targets = [0.45, 0.45, 0.45, 0.45]
+        self.small_lift_speed = 0.8
+
+    def draw(self, simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift, current_view, offset=0):
         if current_view == "simulation":
-            self.draw_simulation(simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift, offset)
+            self.draw_simulation(
+                simulation,
+                btn_minus,
+                btn_plus,
+                btn_monitor,
+                btn_add_normal_lift,
+                btn_add_fast_lift,
+                btn_remove_lift,
+                offset
+            )
         else:
             self.draw_monitor(simulation, btn_monitor, offset)
+
+    def update_animations(self, dt):
+        for i in range(len(self.small_lift_positions)):
+            current = self.small_lift_positions[i]
+            target = self.small_lift_targets[i]
+
+            if current < target:
+                current += self.small_lift_speed * dt
+                if current > target:
+                    current = target
+            elif current > target:
+                current -= self.small_lift_speed * dt
+                if current < target:
+                    current = target
+
+            self.small_lift_positions[i] = current
+
+    def _ensure_small_lift_arrays(self, count):
+        while len(self.small_lift_positions) < count:
+            self.small_lift_positions.append(0.45)
+            self.small_lift_targets.append(0.45)
+
+        if len(self.small_lift_positions) > count:
+            self.small_lift_positions = self.small_lift_positions[:count]
+            self.small_lift_targets = self.small_lift_targets[:count]
 
     def draw_simulation(self, simulation, btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift, offset=0):
         self.screen.fill((230, 230, 230))
@@ -78,6 +117,7 @@ class Renderer:
         draw_button(self.screen, self.font, shifted_monitor, "Back")
 
         total_lifts = len(simulation.lifts)
+        self._ensure_small_lift_arrays(max(total_lifts, 4))
 
         if total_lifts == 0:
             title_bar = pygame.Rect(0, 0, self.screen.get_width(), 50)
@@ -105,7 +145,9 @@ class Renderer:
 
         section_height = area_height / 4
 
-        for i in range(4):
+        shown_lifts = min(4, total_lifts)
+
+        for i in range(shown_lifts):
             section_rect = pygame.Rect(
                 left_margin,
                 int(top_margin + i * section_height),
@@ -144,7 +186,7 @@ class Renderer:
 
             cab_rect = pygame.Rect(
                 shaft_rect.x + 6,
-                int(shaft_rect.y + shaft_rect.height * (0.15 if i == 0 else 0.45)),
+                int(shaft_rect.y + shaft_rect.height * self.small_lift_positions[i]),
                 shaft_rect.width - 12,
                 int(shaft_rect.height * 0.28)
             )
@@ -175,6 +217,7 @@ class Renderer:
         center_y = self.screen.get_height() // 2
         self._draw_center_panel(total_lifts, center_x, center_y)
         self._draw_big_lift_display(simulation)
+
     def _draw_center_panel(self, total_lifts, panel_center_x, panel_center_y):
         box_height = 160 if total_lifts <= 4 else 210
         box = pygame.Rect(panel_center_x - 80, panel_center_y - box_height // 2, 160, box_height)
@@ -187,14 +230,16 @@ class Renderer:
 
         self.button_rects.clear()
 
-        buttons = [
-            ("1", box.x + 15, box.y + 40, 0),
-            ("2", box.x + 65, box.y + 40, 1),
-            ("3", box.x + 15, box.y + 75, 2),
-            ("4", box.x + 65, box.y + 75, 3),
+        max_buttons = min(total_lifts, 4)
+        button_defs = [
+            (box.x + 15, box.y + 40),
+            (box.x + 65, box.y + 40),
+            (box.x + 15, box.y + 75),
+            (box.x + 65, box.y + 75),
         ]
 
-        for text, x, y, idx in buttons:
+        for idx in range(max_buttons):
+            x, y = button_defs[idx]
             r = pygame.Rect(x, y, 30, 30)
 
             if self.selected_lift == idx:
@@ -232,11 +277,14 @@ class Renderer:
         total_lifts = len(simulation.lifts)
         if total_lifts == 0:
             return
+
         if self.selected_lift >= total_lifts:
             self.selected_lift = total_lifts - 1
+
         screen_w = self.screen.get_width()
         screen_h = self.screen.get_height()
         lift = simulation.lifts[self.selected_lift]
+
         area_x = int(screen_w * 0.68)
         area_y = 120
         area_w = int(screen_w * 0.22)
@@ -277,6 +325,53 @@ class Renderer:
             pygame.draw.circle(self.screen, (190, 200, 220), (cx, cy), 6)
             pygame.draw.circle(self.screen, (70, 70, 70), (cx, cy), 6, 1)
 
+        cabin_area = inner.inflate(-20, -20)
+        pygame.draw.rect(self.screen, (225, 225, 230), cabin_area)
+
+        door_gap = int(cabin_area.width * 0.28) if self.call_active else 0
+        half_width = cabin_area.width // 2
+
+        left_door = pygame.Rect(
+            cabin_area.x,
+            cabin_area.y,
+            half_width - door_gap // 2,
+            cabin_area.height
+        )
+
+        right_door = pygame.Rect(
+            cabin_area.centerx + door_gap // 2,
+            cabin_area.y,
+            half_width - door_gap // 2,
+            cabin_area.height
+        )
+
+        door_color = (210, 210, 218)
+        door_border = (110, 110, 120)
+
+        pygame.draw.rect(self.screen, door_color, left_door)
+        pygame.draw.rect(self.screen, door_border, left_door, 2)
+
+        pygame.draw.rect(self.screen, door_color, right_door)
+        pygame.draw.rect(self.screen, door_border, right_door, 2)
+
+        if left_door.width > 8:
+            pygame.draw.line(
+                self.screen,
+                (90, 90, 100),
+                (left_door.right - 6, left_door.y + 15),
+                (left_door.right - 6, left_door.bottom - 15),
+                2
+            )
+
+        if right_door.width > 8:
+            pygame.draw.line(
+                self.screen,
+                (90, 90, 100),
+                (right_door.x + 6, right_door.y + 15),
+                (right_door.x + 6, right_door.bottom - 15),
+                2
+            )
+
         big_font_size = max(36, inner.height // 2)
         big_font = pygame.font.SysFont("arial", big_font_size, bold=True)
 
@@ -300,6 +395,7 @@ class Renderer:
         floor_text = self.font.render(f"Floor: {lift['floor']}", True, (30, 30, 30))
         passengers = simulation.get_passenger_count(lift["id"])
         people_text = self.font.render(f"People: {passengers}", True, (30, 30, 30))
+
         self.screen.blit(type_text, (frame1.x, info_y))
         self.screen.blit(floor_text, (frame1.x, info_y + 28))
         self.screen.blit(people_text, (frame1.x, info_y + 56))
@@ -313,16 +409,16 @@ class Renderer:
 
         if self.stop_active:
             indicator_color = (230, 70, 70)
-            status_text = "Door Status: STOP"
+            status_text = "STOP"
             detail_text = "Lift paused"
         elif self.call_active:
             indicator_color = (80, 210, 120)
-            status_text = "Door Status: OPEN"
-            detail_text = "Call active"
+            status_text = "OPEN"
+            detail_text = "Door open"
         else:
             indicator_color = (160, 160, 170)
-            status_text = "Door Status: CLOSED"
-            detail_text = "Idle"
+            status_text = "CLOSED"
+            detail_text = "Door closed"
 
         indicator_rect = pygame.Rect(status_box.x + 14, status_box.y + 10, 22, 22)
         pygame.draw.ellipse(self.screen, indicator_color, indicator_rect)
