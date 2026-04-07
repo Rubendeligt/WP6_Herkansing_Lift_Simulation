@@ -209,8 +209,12 @@ class Renderer:
             inner_cab = cab_rect.inflate(-12, -12)
             pygame.draw.rect(self.screen, (225, 228, 235), inner_cab, border_radius=4)
 
-            door_gap = 4
-            door_width = (inner_cab.width - door_gap) // 2
+            open_amount = 0
+            if self.call_active and i == self.selected_lift:
+                open_amount = int(inner_cab.width * 0.18)
+
+            door_gap = 4 + open_amount * 2
+            door_width = max(8, (inner_cab.width - door_gap) // 2)
 
             left_door = pygame.Rect(
                 inner_cab.x,
@@ -220,7 +224,7 @@ class Renderer:
             )
 
             right_door = pygame.Rect(
-                inner_cab.x + door_width + door_gap,
+                inner_cab.right - door_width,
                 inner_cab.y,
                 door_width,
                 inner_cab.height
@@ -232,13 +236,14 @@ class Renderer:
             pygame.draw.rect(self.screen, (190, 195, 205), right_door, border_radius=3)
             pygame.draw.rect(self.screen, (105, 110, 120), right_door, 1, border_radius=3)
 
-            pygame.draw.line(
-                self.screen,
-                (90, 95, 105),
-                (inner_cab.centerx, inner_cab.y + 4),
-                (inner_cab.centerx, inner_cab.bottom - 4),
-                2
-            )
+            if not (self.call_active and i == self.selected_lift):
+                pygame.draw.line(
+                    self.screen,
+                    (90, 95, 105),
+                    (inner_cab.centerx, inner_cab.y + 4),
+                    (inner_cab.centerx, inner_cab.bottom - 4),
+                    2
+                )
 
             highlight_rect = pygame.Rect(
                 cab_rect.x + 4,
