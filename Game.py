@@ -6,6 +6,7 @@ from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
 from Python.Draw import draw_information_panel, draw_time
+from Python.Drukte import draw_drukte_panel, handle_drukte_click
 
 
 def main():
@@ -40,6 +41,10 @@ def main():
         shifted_add_fast_lift = btn_add_fast_lift.move(-offset, 0)
         shifted_remove_lift = btn_remove_lift.move(-offset, 0)
 
+        drukte_buttons = []
+        if current_view == "simulation":
+            drukte_buttons = draw_drukte_panel(screen, font, simulation, width, height)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -72,6 +77,9 @@ def main():
 
                     elif shifted_remove_lift.collidepoint(mouse_pos):
                         simulation.remove_last_lift()
+
+                    else:
+                        handle_drukte_click(mouse_pos, simulation, drukte_buttons)
 
                 elif current_view == "monitor":
                     for rect, idx in renderer.button_rects:
@@ -110,6 +118,7 @@ def main():
         if current_view == "simulation":
             draw_information_panel(screen, info_panel, font, simulation)
             draw_time(screen, font, simulation)
+            draw_drukte_panel(screen, font, simulation, width, height)
 
         pygame.display.flip()
 

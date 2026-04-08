@@ -47,6 +47,29 @@ class Simulation:
         self.time_minutes = 7 * 60
         self.time_speed = 5
         self.last_logged_hour = int(self.time_minutes // 60)
+        self.rush_periods = [
+            {
+                "start_hour": 8,
+                "start_minute": 15,
+                "end_hour": 8,
+                "end_minute": 45,
+                "multiplier": 2.5,
+            },
+            {
+                "start_hour": 12,
+                "start_minute": 0,
+                "end_hour": 13,
+                "end_minute": 0,
+                "multiplier": 3.5,
+            },
+            {
+                "start_hour": 17,
+                "start_minute": 0,
+                "end_hour": 18,
+                "end_minute": 0,
+                "multiplier": 2.5,
+            },
+        ]
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
@@ -131,6 +154,31 @@ class Simulation:
             lift["floor"] = int(round(lift["floor_pos"]))
 
         self._recalculate_lift_layout()
+    def set_rush_period(
+        self,
+        index: int,
+        start_hour: int = None,
+        start_minute: int = None,
+        end_hour: int = None,
+        end_minute: int = None,
+        multiplier: float = None,
+    ) -> None:
+        if not (0 <= index < len(self.rush_periods)):
+            return
+
+        period = self.rush_periods[index]
+
+        if start_hour is not None:
+            period["start_hour"] = max(0, min(23, int(start_hour)))
+        if start_minute is not None:
+            period["start_minute"] = max(0, min(59, int(start_minute)))
+        if end_hour is not None:
+            period["end_hour"] = max(0, min(23, int(end_hour)))
+        if end_minute is not None:
+            period["end_minute"] = max(0, min(59, int(end_minute)))
+        if multiplier is not None:
+            period["multiplier"] = max(0.1, float(multiplier))
+
     def update(self, dt: float) -> None:
         self.time_minutes += dt * self.time_speed
         if self.time_minutes > 21 * 60:
@@ -168,7 +216,8 @@ class Simulation:
             self.height,
             self.rest_x,
             self.next_person_id,
-            self.time_minutes
+            self.time_minutes,
+            self.rush_periods,
         )
 
         for lift in self.lifts:
@@ -224,7 +273,7 @@ class Simulation:
     
     def get_average_wait_time(self) -> float:
         return self.displayed_average_wait_time
-    
+
     def get_time_string(self) -> str:
         total_minutes = int(self.time_minutes)
         hours = total_minutes // 60
