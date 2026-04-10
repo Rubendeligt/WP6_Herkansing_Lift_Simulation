@@ -6,7 +6,7 @@ from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
 from Python.Draw import draw_information_panel, draw_time
-from Python.Drukte import draw_drukte_panel, handle_drukte_click
+from Python.Drukte import (DruktePanel, draw_drukte_panel, handle_drukte_click, get_drukte_buttons,)
 
 
 def main():
@@ -23,6 +23,7 @@ def main():
     simulation = Simulation(width, height, floors=6)
     renderer = Renderer(screen, font)
     info_panel = InformationPanel(width, height)
+    drukte_panel = DruktePanel(width, height)
 
     btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift = make_buttons(width)
 
@@ -42,8 +43,8 @@ def main():
         shifted_remove_lift = btn_remove_lift.move(-offset, 0)
 
         drukte_buttons = []
-        if current_view == "simulation":
-            drukte_buttons = draw_drukte_panel(screen, font, simulation, width, height)
+        if current_view == "simulation" and drukte_panel.get_panel_rect().x < drukte_panel.screen_width:
+            drukte_buttons = get_drukte_buttons(simulation, drukte_panel)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -55,6 +56,7 @@ def main():
 
             if current_view == "simulation":
                 info_panel.handle_event(event)
+                drukte_panel.handle_event(event)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
@@ -100,6 +102,7 @@ def main():
         if current_view == "simulation":
             simulation.update(dt)
             info_panel.update(dt)
+            drukte_panel.update(dt)
 
         renderer.update_animations(dt)
 
@@ -118,7 +121,7 @@ def main():
         if current_view == "simulation":
             draw_information_panel(screen, info_panel, font, simulation)
             draw_time(screen, font, simulation)
-            draw_drukte_panel(screen, font, simulation, width, height)
+            draw_drukte_panel(screen, font, simulation, drukte_panel)
 
         pygame.display.flip()
 
