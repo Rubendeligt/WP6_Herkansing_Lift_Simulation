@@ -27,6 +27,9 @@ def main():
     drukte_panel = DruktePanel(width, height)
     setting_sidebar = SettingSidebar(width, height)
     _, _, btn_monitor, _, _, _ = make_buttons(width)
+    btn_monitor.width = 140
+    btn_monitor.height = 60
+    btn_monitor.bottomright = (width - 20, height - 20)
 
     current_view = "simulation"
     running = True
