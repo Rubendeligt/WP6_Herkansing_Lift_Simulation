@@ -26,6 +26,7 @@ def main():
     info_panel = InformationPanel(width, height)
     drukte_panel = DruktePanel(width, height)
     setting_sidebar = SettingSidebar(width, height)
+    _, _, btn_monitor, _, _, _ = make_buttons(width)
 
     current_view = "simulation"
     running = True
@@ -38,7 +39,6 @@ def main():
         (
             btn_minus,
             btn_plus,
-            btn_monitor,
             btn_add_normal_lift,
             btn_add_fast_lift,
             btn_remove_lift,
@@ -57,9 +57,20 @@ def main():
                     running = False
 
             if current_view == "simulation":
-                info_panel.handle_event(event)
-                drukte_panel.handle_event(event)
-                setting_sidebar.handle_event(event)
+                info_open = info_panel.get_panel_rect().x < info_panel.screen_width
+                drukte_open = drukte_panel.get_panel_rect().x < drukte_panel.screen_width
+                setting_open = setting_sidebar.get_panel_rect().x < setting_sidebar.screen_width
+
+                if info_open:
+                    info_panel.handle_event(event)
+                elif drukte_open:
+                    drukte_panel.handle_event(event)
+                elif setting_open:
+                    setting_sidebar.handle_event(event)
+                else:
+                    info_panel.handle_event(event)
+                    drukte_panel.handle_event(event)
+                    setting_sidebar.handle_event(event)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
@@ -119,7 +130,7 @@ def main():
             btn_add_fast_lift,
             btn_remove_lift,
             current_view,
-            offset
+            0
         )
 
         if current_view == "simulation":
@@ -129,10 +140,10 @@ def main():
             draw_Setting_sidebar(screen, font, setting_sidebar)
             draw_button(screen, font, btn_minus, "-")
             draw_button(screen, font, btn_plus, "+")
-            draw_button(screen, font, btn_monitor, "tweede scherm")
             draw_button(screen, font, btn_add_normal_lift, "+ normal")
             draw_button(screen, font, btn_add_fast_lift, "+ fast")
             draw_button(screen, font, btn_remove_lift, "- lift")
+            draw_button(screen, font, btn_monitor, "tweede scherm")
 
         pygame.display.flip()
 
