@@ -285,3 +285,13 @@ class Simulation:
 
     def get_people_history(self):
         return self.people_history
+    
+    def get_lift_destinations(self, lift_id: int) -> dict[int, int]:
+        counts = {}
+
+        for p in self.people:
+            if p.get("elevator_id") == lift_id and p["state"] in ("BOARDING", "IN_LIFT"):
+                dest = p["dest"]
+                counts[dest] = counts.get(dest, 0) + 1
+
+        return dict(sorted(counts.items()))

@@ -32,7 +32,7 @@ def draw_lift(
     passenger_count: int,
     FONT: pygame.font.Font,
     lift_type: str
-) -> None:
+) -> pygame.Rect:
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     pygame.draw.rect(screen, GRAY, pygame.Rect(shaft_x, TOP_MARGIN, shaft_w, building_height), 2)
 
@@ -44,11 +44,9 @@ def draw_lift(
     if lift_type == "fast":
         fill_color = (255, 170, 70)
         border_color = (180, 90, 20)
-        type_text = "F"
     else:
         fill_color = (80, 220, 120)
         border_color = (40, 140, 70)
-        type_text = "N"
 
     pygame.draw.rect(screen, fill_color, cab, border_radius=8)
     pygame.draw.rect(screen, border_color, cab, 2, border_radius=8)
@@ -56,3 +54,5 @@ def draw_lift(
     label = FONT.render(str(passenger_count), True, (20, 20, 20))
     label_rect = label.get_rect(center=cab.center)
     screen.blit(label, label_rect)
+
+    return cab

@@ -2,6 +2,7 @@ import pygame
 import Python.People as PeopleModule
 from Python.Draw import draw_building, draw_button
 from Python.Lift import draw_lift
+from Python.Lifthover import draw_lift_hover_info
 
 
 class Renderer:
@@ -9,6 +10,8 @@ class Renderer:
         self.screen = screen
         self.font = font
         self.draw_people = PeopleModule.draw_people
+        self.hovered_lift_id = None
+        self.hovered_lift_rect = None
 
         self.selected_lift = 0
         self.button_rects = []
@@ -20,7 +23,6 @@ class Renderer:
 
         self.big_lift_number = "1"
 
-        # Animatie voor kleine liften links
         self.small_lift_positions = [0.45, 0.45, 0.45, 0.45]
         self.small_lift_targets = [0.45, 0.45, 0.45, 0.45]
         self.small_lift_speed = 0.8
@@ -77,10 +79,14 @@ class Renderer:
             simulation.shaft_w
         )
 
+        mouse_pos = pygame.mouse.get_pos()
+        self.hovered_lift_id = None
+        self.hovered_lift_rect = None
+
         for lift in simulation.lifts:
             passenger_count = simulation.get_passenger_count(lift["id"])
 
-            draw_lift(
+            cab_rect = draw_lift(
                 self.screen,
                 lift["shaft_x"],
                 lift["shaft_w"],
@@ -94,7 +100,19 @@ class Renderer:
                 lift["type"]
             )
 
+            if cab_rect.collidepoint(mouse_pos):
+                self.hovered_lift_id = lift["id"]
+                self.hovered_lift_rect = cab_rect
+
         self.draw_people(self.screen, simulation.people)
+
+        draw_lift_hover_info(
+            self.screen,
+            self.font,
+            simulation,
+            self.hovered_lift_id,
+            self.hovered_lift_rect
+        )
 
     def draw_monitor(self, simulation, btn_monitor, offset=0):
         self.screen.fill((228, 230, 220))
@@ -130,7 +148,6 @@ class Renderer:
         area_height = self.screen.get_height() - 140
 
         section_height = area_height / 4
-
         shown_lifts = min(4, total_lifts)
 
         for i in range(shown_lifts):
@@ -378,7 +395,7 @@ class Renderer:
 
         info_y = frame1.bottom + 70
         type_text = self.font.render(f"Type: {lift['type']}", True, (30, 30, 30))
-        floor_text = self.font.render(f"Floor: {lift['floor']}", True, (30, 30, 30))
+        floor_text = self.font.render(f"Floor: {lift['floor'] + 1}", True, (30, 30, 30))
         passengers = simulation.get_passenger_count(lift["id"])
         people_text = self.font.render(f"People: {passengers}", True, (30, 30, 30))
 
