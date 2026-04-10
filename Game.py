@@ -1,6 +1,7 @@
 import pygame
 import sys
 
+from Python.Setting_sidebar import SettingSidebar, draw_Setting_sidebar
 from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
@@ -24,6 +25,7 @@ def main():
     renderer = Renderer(screen, font)
     info_panel = InformationPanel(width, height)
     drukte_panel = DruktePanel(width, height)
+    setting_sidebar = SettingSidebar(width, height)
 
     btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift = make_buttons(width)
 
@@ -57,6 +59,7 @@ def main():
             if current_view == "simulation":
                 info_panel.handle_event(event)
                 drukte_panel.handle_event(event)
+                setting_sidebar.handle_event(event)
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
@@ -103,6 +106,7 @@ def main():
             simulation.update(dt)
             info_panel.update(dt)
             drukte_panel.update(dt)
+            setting_sidebar.update(dt)
 
         renderer.update_animations(dt)
 
@@ -122,6 +126,7 @@ def main():
             draw_information_panel(screen, info_panel, font, simulation)
             draw_time(screen, font, simulation)
             draw_drukte_panel(screen, font, simulation, drukte_panel)
+            draw_Setting_sidebar(screen, font, setting_sidebar)
 
         pygame.display.flip()
 
