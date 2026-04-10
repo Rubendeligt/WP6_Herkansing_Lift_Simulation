@@ -274,6 +274,41 @@ class Simulation:
     def get_average_wait_time(self) -> float:
         return self.displayed_average_wait_time
 
+    def get_lifts_by_type(self, lift_filter="all"):
+        if lift_filter == "normal":
+            return [lift for lift in self.lifts if lift["type"] == "normal"]
+        if lift_filter == "fast":
+            return [lift for lift in self.lifts if lift["type"] == "fast"]
+        return self.lifts
+
+    def get_lift_count_filtered(self, lift_filter="all") -> int:
+        return len(self.get_lifts_by_type(lift_filter))
+
+    def get_people_count_filtered(self, lift_filter="all") -> int:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        return sum(
+            1
+            for p in self.people
+            if p.get("elevator_id") in selected_ids and p["state"] in ("BOARDING", "IN_LIFT")
+        )
+
+    def get_average_wait_time_filtered(self, lift_filter="all") -> float:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        wait_times = [
+            p["wait_time"]
+            for p in self.people
+            if p.get("elevator_id") in selected_ids and p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+        ]
+
+        if not wait_times:
+            return 0.0
+
+        return sum(wait_times) / len(wait_times)
+
     def get_time_string(self) -> str:
         total_minutes = int(self.time_minutes)
         hours = total_minutes // 60

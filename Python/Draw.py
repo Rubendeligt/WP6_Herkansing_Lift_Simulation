@@ -134,21 +134,51 @@ def draw_information_panel(screen, info_panel, font, simulation):
     floors = font.render(f"Floors: {simulation.floors}", True, (200, 200, 200))
     screen.blit(floors, (panel.x + 20, 70))
 
-    lifts = font.render(f"Lifts: {simulation.total_lifts}", True, (200, 200, 200))
+    lift_filter = info_panel.active_filter
+    filter_label_map = {
+        "all": "Alle liften",
+        "normal": "Normal liften",
+        "fast": "Fast liften"
+    }
+
+    lift_count = simulation.get_lift_count_filtered(lift_filter)
+    people_count = simulation.get_people_count_filtered(lift_filter)
+    avg_wait = simulation.get_average_wait_time_filtered(lift_filter)
+
+    lifts = font.render(f"Lifts: {lift_count}", True, (200, 200, 200))
     screen.blit(lifts, (panel.x + 20, 105))
 
-    people = font.render(f"People: {len(simulation.people)}", True, (200, 200, 200))
+    people = font.render(f"People: {people_count}", True, (200, 200, 200))
     screen.blit(people, (panel.x + 20, 150))
 
-    avg_wait = simulation.get_average_wait_time()
     avg_wait_text = font.render(
-    f"Gem. wachttijd: {avg_wait:.1f}s",
-    True,
-    (200, 200, 200)
-)
+        f"Gem. wachttijd: {avg_wait:.1f}s",
+        True,
+        (200, 200, 200)
+    )
     screen.blit(avg_wait_text, (panel.x + 20, 190))
+
+    filter_text = font.render(f"Filter: {filter_label_map[lift_filter]}", True, (255, 255, 255))
+    screen.blit(filter_text, (panel.x + 20, 220))
+
+    all_rect, normal_rect, fast_rect = info_panel.get_filter_button_rects()
+
+    def draw_filter_button(rect, text, active):
+        fill = (100, 160, 255) if active else (60, 60, 75)
+        border = (220, 220, 220)
+
+        pygame.draw.rect(screen, fill, rect, border_radius=8)
+        pygame.draw.rect(screen, border, rect, 2, border_radius=8)
+
+        txt = font.render(text, True, (255, 255, 255))
+        screen.blit(txt, txt.get_rect(center=rect.center))
+
+    draw_filter_button(all_rect, "Alle", lift_filter == "all")
+    draw_filter_button(normal_rect, "Normal", lift_filter == "normal")
+    draw_filter_button(fast_rect, "Fast", lift_filter == "fast")
+
     time_text = font.render(f"Tijd: {simulation.get_time_string()}", True, (255, 255, 255))
-    screen.blit(time_text, (20, 20)) 
+    screen.blit(time_text, (20, 20))
 
     draw_wait_time_graph(screen, panel, font, simulation)
     draw_people_graph(screen, panel, font, simulation)
