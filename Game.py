@@ -6,7 +6,7 @@ from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
-from Python.Draw import draw_information_panel, draw_time
+from Python.Draw import draw_information_panel, draw_time, draw_button
 from Python.Drukte import (DruktePanel, draw_drukte_panel, handle_drukte_click, get_drukte_buttons,)
 
 
@@ -27,8 +27,6 @@ def main():
     drukte_panel = DruktePanel(width, height)
     setting_sidebar = SettingSidebar(width, height)
 
-    btn_minus, btn_plus, btn_monitor, btn_add_normal_lift, btn_add_fast_lift, btn_remove_lift = make_buttons(width)
-
     current_view = "simulation"
     running = True
 
@@ -37,12 +35,14 @@ def main():
 
         offset = max(0, info_panel.screen_width - info_panel.get_panel_rect().x)
 
-        shifted_minus = btn_minus.move(-offset, 0)
-        shifted_plus = btn_plus.move(-offset, 0)
-        shifted_monitor = btn_monitor.move(-offset, 0)
-        shifted_add_normal_lift = btn_add_normal_lift.move(-offset, 0)
-        shifted_add_fast_lift = btn_add_fast_lift.move(-offset, 0)
-        shifted_remove_lift = btn_remove_lift.move(-offset, 0)
+        (
+            btn_minus,
+            btn_plus,
+            btn_monitor,
+            btn_add_normal_lift,
+            btn_add_fast_lift,
+            btn_remove_lift,
+        ) = setting_sidebar.get_button_rects()
 
         drukte_buttons = []
         if current_view == "simulation" and drukte_panel.get_panel_rect().x < drukte_panel.screen_width:
@@ -64,23 +64,23 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 mouse_pos = pygame.mouse.get_pos()
 
-                if shifted_monitor.collidepoint(mouse_pos):
+                if btn_monitor.collidepoint(mouse_pos):
                     current_view = "monitor" if current_view == "simulation" else "simulation"
 
                 elif current_view == "simulation":
-                    if shifted_minus.collidepoint(mouse_pos):
+                    if btn_minus.collidepoint(mouse_pos):
                         simulation.set_floors(max(MIN_FLOORS, simulation.floors - 1))
 
-                    elif shifted_plus.collidepoint(mouse_pos):
+                    elif btn_plus.collidepoint(mouse_pos):
                         simulation.set_floors(min(MAX_FLOORS, simulation.floors + 1))
 
-                    elif shifted_add_normal_lift.collidepoint(mouse_pos):
+                    elif btn_add_normal_lift.collidepoint(mouse_pos):
                         simulation.add_lift("normal")
 
-                    elif shifted_add_fast_lift.collidepoint(mouse_pos):
+                    elif btn_add_fast_lift.collidepoint(mouse_pos):
                         simulation.add_lift("fast")
 
-                    elif shifted_remove_lift.collidepoint(mouse_pos):
+                    elif btn_remove_lift.collidepoint(mouse_pos):
                         simulation.remove_last_lift()
 
                     else:
@@ -127,6 +127,12 @@ def main():
             draw_time(screen, font, simulation)
             draw_drukte_panel(screen, font, simulation, drukte_panel)
             draw_Setting_sidebar(screen, font, setting_sidebar)
+            draw_button(screen, font, btn_minus, "-")
+            draw_button(screen, font, btn_plus, "+")
+            draw_button(screen, font, btn_monitor, "tweede scherm")
+            draw_button(screen, font, btn_add_normal_lift, "+ normal")
+            draw_button(screen, font, btn_add_fast_lift, "+ fast")
+            draw_button(screen, font, btn_remove_lift, "- lift")
 
         pygame.display.flip()
 

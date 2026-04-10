@@ -48,14 +48,42 @@ class SettingSidebar:
             self.tab_height
         )
 
+    def get_button_rects(self):
+        panel_rect = self.get_panel_rect()
 
-def draw_Setting_sidebar(screen, font, extra_sidebar):
-    panel_rect = extra_sidebar.get_panel_rect()
-    tab_rect = extra_sidebar.get_tab_rect()
+        button_width = 220
+        button_height = 42
+        left = panel_rect.x + 50
+        start_y = 120
+        gap = 16
+
+        btn_minus = pygame.Rect(left, start_y + 0 * (button_height + gap), button_width, button_height)
+        btn_plus = pygame.Rect(left, start_y + 1 * (button_height + gap), button_width, button_height)
+        btn_monitor = pygame.Rect(left, start_y + 2 * (button_height + gap), button_width, button_height)
+        btn_add_normal_lift = pygame.Rect(left, start_y + 3 * (button_height + gap), button_width, button_height)
+        btn_add_fast_lift = pygame.Rect(left, start_y + 4 * (button_height + gap), button_width, button_height)
+        btn_remove_lift = pygame.Rect(left, start_y + 5 * (button_height + gap), button_width, button_height)
+
+        return (
+            btn_minus,
+            btn_plus,
+            btn_monitor,
+            btn_add_normal_lift,
+            btn_add_fast_lift,
+            btn_remove_lift,
+        )
+
+
+def draw_Setting_sidebar(screen, font, setting_sidebar):
+    panel_rect = setting_sidebar.get_panel_rect()
+    tab_rect = setting_sidebar.get_tab_rect()
 
     bg = (246, 247, 250)
     border = (65, 65, 75)
     title_color = (25, 25, 30)
+    text_color = (85, 85, 95)
+    section_bg = (255, 255, 255)
+    soft = (220, 222, 228)
 
     pygame.draw.rect(screen, bg, tab_rect, border_radius=10)
     pygame.draw.rect(screen, border, tab_rect, 2, border_radius=10)
@@ -68,3 +96,15 @@ def draw_Setting_sidebar(screen, font, extra_sidebar):
 
     pygame.draw.rect(screen, bg, panel_rect)
     pygame.draw.line(screen, border, (panel_rect.x, 0), (panel_rect.x, panel_rect.bottom), 2)
+    title_font = pygame.font.SysFont("arial", 24, bold=True)
+    small_font = pygame.font.SysFont("arial", 16)
+
+    screen.blit(title_font.render("Settings", True, title_color), (panel_rect.x + 20, 22))
+    screen.blit(
+        small_font.render("Bediening van de simulatie", True, text_color),
+        (panel_rect.x + 20, 54)
+    )
+
+    box = pygame.Rect(panel_rect.x + 18, 95, panel_rect.width - 36, 330)
+    pygame.draw.rect(screen, section_bg, box, border_radius=14)
+    pygame.draw.rect(screen, soft, box, 1, border_radius=14)

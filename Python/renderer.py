@@ -96,20 +96,6 @@ class Renderer:
 
         self.draw_people(self.screen, simulation.people)
 
-        shifted_minus = btn_minus.move(-offset, 0)
-        shifted_plus = btn_plus.move(-offset, 0)
-        shifted_monitor = btn_monitor.move(-offset, 0)
-        shifted_add_normal_lift = btn_add_normal_lift.move(-offset, 0)
-        shifted_add_fast_lift = btn_add_fast_lift.move(-offset, 0)
-        shifted_remove_lift = btn_remove_lift.move(-offset, 0)
-
-        draw_button(self.screen, self.font, shifted_minus, "-")
-        draw_button(self.screen, self.font, shifted_plus, "+")
-        draw_button(self.screen, self.font, shifted_monitor, "tweede scherm")
-        draw_button(self.screen, self.font, shifted_add_normal_lift, "+ normal")
-        draw_button(self.screen, self.font, shifted_add_fast_lift, "+ fast")
-        draw_button(self.screen, self.font, shifted_remove_lift, "- lift")
-
     def draw_monitor(self, simulation, btn_monitor, offset=0):
         self.screen.fill((228, 230, 220))
 
