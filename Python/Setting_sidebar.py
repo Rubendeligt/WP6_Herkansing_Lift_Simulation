@@ -43,7 +43,7 @@ class SettingSidebar:
         panel_rect = self.get_panel_rect()
         return pygame.Rect(
             panel_rect.x - self.tab_width,
-            int(self.screen_height * 0.26),
+            int(self.screen_height * 0.16),
             self.tab_width,
             self.tab_height
         )
