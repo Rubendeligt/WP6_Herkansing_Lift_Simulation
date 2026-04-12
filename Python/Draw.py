@@ -135,8 +135,8 @@ def draw_information_panel(screen, info_panel, font, simulation):
     lift_filter = info_panel.active_filter
     filter_label_map = {
         "all": "Alle liften",
-        "normal": "Normal liften",
-        "fast": "Fast liften"
+        "normal": "Normale liften",
+        "fast": "Snelle liften"
     }
 
     lift_count = simulation.get_lift_count_filtered(lift_filter)
