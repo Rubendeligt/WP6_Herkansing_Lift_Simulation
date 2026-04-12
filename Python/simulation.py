@@ -41,6 +41,7 @@ class Simulation:
         self.recent_wait_times = []
         self.wait_time_timer = 0.0
         self.graph_log_timer = 0.0
+        self.graph_log_interval = 15.0
         self.displayed_average_wait_time = 0.0
         self.wait_time_history = {
             "all": [],
@@ -249,18 +250,18 @@ class Simulation:
             self.recent_wait_times.clear()
             self.wait_time_timer = 0.0
 
-        if self.graph_log_timer >= 5.0:
+        if self.graph_log_timer >= self.graph_log_interval:
             for lift_filter in ("all", "normal", "fast"):
                 self.wait_time_history[lift_filter].append(
                 (
-                        self.time_minutes,
-                        self.get_average_wait_time_filtered_live(lift_filter)
+                self.time_minutes,
+                self.get_average_wait_time_filtered_live(lift_filter)
                 )
             )
                 self.people_history[lift_filter].append(
-            (
-                        self.time_minutes,
-                        self.get_people_count_filtered_live(lift_filter)
+            (      
+                self.time_minutes,
+                self.get_people_count_filtered_live(lift_filter)
             )
         )
 
@@ -363,19 +364,19 @@ class Simulation:
     def get_average_wait_time_filtered(self, lift_filter="all") -> float:
         if lift_filter == "all":
             wait_times = [
-                p["wait_time"]
-                for p in self.people
-                if p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+            p["wait_time"]
+            for p in self.people
+            if p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
             ]
         else:
             selected_lifts = self.get_lifts_by_type(lift_filter)
             selected_ids = {lift["id"] for lift in selected_lifts}
 
-        wait_times = [
-            p["wait_time"]
-            for p in self.people
-            if p.get("elevator_id") in selected_ids
-            and p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+            wait_times = [
+                p["wait_time"]
+                for p in self.people
+                if p.get("elevator_id") in selected_ids
+                and p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
         ]
 
         if not wait_times:
