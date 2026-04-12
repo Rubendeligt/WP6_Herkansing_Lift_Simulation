@@ -25,7 +25,7 @@ class Simulation:
         self.lift_h = self.building_height / self.floors
         self.shaft_gap = 20
         self.start_x = LEFT_MARGIN + 20
-
+        self.people = []
         self.lifts = []
         self.next_lift_id = 0
         self.add_lift("normal")
@@ -178,6 +178,18 @@ class Simulation:
         self.next_lift_id += 1
         self.lifts.append(new_lift)
         self._recalculate_lift_layout()
+
+        for person in self.people:
+            for lift in self.lifts:
+                left = lift["shaft_x"]
+                right = lift["shaft_x"] + lift["shaft_w"]
+
+                if left - 5 < person["x"] < right + 5:
+                    person["x"] = self.call_x + 20 + (person["id"] % 3) * 12
+                    person["elevator_id"] = None
+
+                if person["state"] in ("BOARDING", "IN_LIFT", "EXITING"):
+                    person["state"] = "WAITING"
 
     def remove_last_lift(self) -> None:
         if len(self.lifts) <= 1:

@@ -107,6 +107,15 @@ def update_people(
                     p["x"] = float(call_x)
                     p["state"] = "WAITING"
 
+            elif p["x"] < call_x:
+                p["x"] += PERSON_SPEED_PX_PER_SEC * dt
+                if p["x"] >= call_x:
+                    p["x"] = float(call_x)
+                    p["state"] = "WAITING"
+
+            else:
+                p["state"] = "WAITING"
+
         if p["state"] == "WAITING":
             p["wait_time"] += dt
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))
