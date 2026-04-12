@@ -166,7 +166,8 @@ def main():
         if current_view == "simulation":
             draw_information_panel(screen, info_panel, font, simulation)
             draw_time(screen, font, simulation)
-            draw_drukte_panel(screen, font, simulation, drukte_panel)
+            if not info_open:
+                draw_drukte_panel(screen, font, simulation, drukte_panel)
             if not info_open and not drukte_open:
                 draw_Setting_sidebar(screen, font, setting_sidebar, simulation)
             draw_button(screen, font, btn_minus, "verdieping minder")
