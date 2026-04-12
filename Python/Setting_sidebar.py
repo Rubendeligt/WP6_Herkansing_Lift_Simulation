@@ -94,7 +94,7 @@ def draw_Setting_sidebar(screen, font, setting_sidebar):
     pygame.draw.rect(screen, border, tab_rect, 2, border_radius=10)
 
     tab_font = pygame.font.SysFont("arial", 18, bold=True)
-    tab_text = tab_font.render("Settings", True, title_color)
+    tab_text = tab_font.render("Instellingen", True, title_color)
     rotated = pygame.transform.rotate(tab_text, 90)
     rotated_rect = rotated.get_rect(center=tab_rect.center)
     screen.blit(rotated, rotated_rect)
@@ -104,7 +104,7 @@ def draw_Setting_sidebar(screen, font, setting_sidebar):
     title_font = pygame.font.SysFont("arial", 24, bold=True)
     small_font = pygame.font.SysFont("arial", 16)
 
-    screen.blit(title_font.render("Settings", True, title_color), (panel_rect.x + 20, 22))
+    screen.blit(title_font.render("Instellingen", True, title_color), (panel_rect.x + 20, 22))
     screen.blit(
         small_font.render("Bediening van de simulatie", True, text_color),
         (panel_rect.x + 20, 54)
