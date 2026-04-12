@@ -180,7 +180,8 @@ def main():
             draw_button(screen, font, btn_open_later, "opening + 1 uur")
             draw_button(screen, font, btn_close_earlier, "sluiting - 1 uur")
             draw_button(screen, font, btn_close_later, "sluiting + 1 uur")
-            draw_button(screen, font, btn_monitor, "tweede scherm")
+            if not info_open and not drukte_open and not setting_open:
+                draw_button(screen, font, btn_monitor, "tweede scherm")
             if current_view == "simulation":
                 draw_day_finished(screen, simulation)
 
