@@ -187,19 +187,76 @@ class Renderer:
                     2
                 )
 
-            cab_rect = pygame.Rect(
-                shaft_rect.x + 6,
-                int(shaft_rect.y + shaft_rect.height * self.small_lift_positions[i]),
-                shaft_rect.width - 12,
-                int(shaft_rect.height * 0.28)
+            lift = simulation.lifts[i]
+
+            cab_height = shaft_rect.height - 8
+            cab_width = shaft_rect.width - 8
+
+            cab_x = shaft_rect.x + 4
+            cab_y = int(shaft_rect.y + shaft_rect.height * self.small_lift_positions[i])
+
+            min_y = shaft_rect.y + 4
+            max_y = shaft_rect.bottom - cab_height - 4
+            cab_y = max(min_y, min(cab_y, max_y))
+
+            cab_rect = pygame.Rect(cab_x, cab_y, cab_width, cab_height)
+
+            if lift["type"] == "fast":
+                cab_color = (235, 175, 95)
+                cab_border = (160, 95, 35)
+            else:
+                cab_color = (120, 155, 220)
+                cab_border = (55, 80, 140)
+
+            pygame.draw.rect(self.screen, cab_color, cab_rect, border_radius=6)
+            pygame.draw.rect(self.screen, cab_border, cab_rect, 2, border_radius=6)
+
+            inner_cab = cab_rect.inflate(-12, -12)
+            pygame.draw.rect(self.screen, (225, 228, 235), inner_cab, border_radius=4)
+
+            open_amount = 0
+            if self.call_active and i == self.selected_lift:
+                open_amount = int(inner_cab.width * 0.18)
+
+            door_gap = 4 + open_amount * 2
+            door_width = max(8, (inner_cab.width - door_gap) // 2)
+
+            left_door = pygame.Rect(
+                inner_cab.x,
+                inner_cab.y,
+                door_width,
+                inner_cab.height
             )
 
-            pygame.draw.rect(self.screen, (72, 118, 210), cab_rect)
-            pygame.draw.rect(
-                self.screen,
-                (255, 90, 170),
-                (cab_rect.x, cab_rect.bottom - 4, cab_rect.width, 4)
+            right_door = pygame.Rect(
+                inner_cab.right - door_width,
+                inner_cab.y,
+                door_width,
+                inner_cab.height
             )
+
+            pygame.draw.rect(self.screen, (190, 195, 205), left_door, border_radius=3)
+            pygame.draw.rect(self.screen, (105, 110, 120), left_door, 1, border_radius=3)
+
+            pygame.draw.rect(self.screen, (190, 195, 205), right_door, border_radius=3)
+            pygame.draw.rect(self.screen, (105, 110, 120), right_door, 1, border_radius=3)
+
+            if not (self.call_active and i == self.selected_lift):
+                pygame.draw.line(
+                    self.screen,
+                    (90, 95, 105),
+                    (inner_cab.centerx, inner_cab.y + 4),
+                    (inner_cab.centerx, inner_cab.bottom - 4),
+                    2
+                )
+
+            highlight_rect = pygame.Rect(
+                cab_rect.x + 4,
+                cab_rect.y + 4,
+                cab_rect.width - 8,
+                5
+            )
+            pygame.draw.rect(self.screen, (245, 245, 250), highlight_rect, border_radius=2)
 
             text_x = shaft_rect.right + 40
             text_y = section_rect.y + 25
@@ -207,14 +264,17 @@ class Renderer:
             label = self.font.render(f"Lift {i + 1}", True, (30, 30, 30))
             self.screen.blit(label, (text_x, text_y))
 
-            floor_text = self.font.render("Floor: --", True, (60, 60, 60))
+            floor_text = self.font.render(f"Floor: {lift['floor']}", True, (60, 60, 60))
             self.screen.blit(floor_text, (text_x, text_y + 30))
 
-            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 10, text_y + 70), 8)
-            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 10, text_y + 70), 8, 1)
+            type_text = self.font.render(f"Type: {lift['type']}", True, (60, 60, 60))
+            self.screen.blit(type_text, (text_x, text_y + 58))
 
-            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 35, text_y + 70), 8)
-            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 35, text_y + 70), 8, 1)
+            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 10, text_y + 98), 8)
+            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 10, text_y + 98), 8, 1)
+
+            pygame.draw.circle(self.screen, (170, 176, 190), (text_x + 35, text_y + 98), 8)
+            pygame.draw.circle(self.screen, (90, 96, 110), (text_x + 35, text_y + 98), 8, 1)
 
         center_x = int(self.screen.get_width() * 0.50)
         center_y = self.screen.get_height() // 2
