@@ -288,7 +288,8 @@ class Simulation:
 
             self.graph_log_timer = 0.0
 
-        self.next_person_id = self.maybe_spawn_person(
+        if not self.day_finished:
+            self.next_person_id = self.maybe_spawn_person(
             self.rng,
             self.people,
             dt,
