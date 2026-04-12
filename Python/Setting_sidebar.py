@@ -62,6 +62,7 @@ class SettingSidebar:
         btn_add_normal_lift = pygame.Rect(left, start_y + 2 * (button_height + gap), button_width, button_height)
         btn_add_fast_lift = pygame.Rect(left, start_y + 3 * (button_height + gap), button_width, button_height)
         btn_remove_lift = pygame.Rect(left, start_y + 4 * (button_height + gap), button_width, button_height)
+        btn_restart_day = pygame.Rect(left, start_y + 5 * (button_height + gap), button_width, button_height)
 
         return (
             btn_minus,
@@ -69,6 +70,7 @@ class SettingSidebar:
             btn_add_normal_lift,
             btn_add_fast_lift,
             btn_remove_lift,
+            btn_restart_day,
         )
 
 

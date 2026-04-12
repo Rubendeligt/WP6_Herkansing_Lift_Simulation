@@ -45,6 +45,7 @@ def main():
             btn_add_normal_lift,
             btn_add_fast_lift,
             btn_remove_lift,
+            btn_restart_day,
         ) = setting_sidebar.get_button_rects()
         info_open = info_panel.get_panel_rect().x < info_panel.screen_width
         drukte_open = drukte_panel.get_panel_rect().x < drukte_panel.screen_width
@@ -95,6 +96,9 @@ def main():
 
                     elif btn_remove_lift.collidepoint(mouse_pos):
                         simulation.remove_last_lift()
+
+                    elif btn_restart_day.collidepoint(mouse_pos):
+                        simulation = Simulation(width, height, floors=simulation.floors)
 
                     else:
                         handle_drukte_click(mouse_pos, simulation, drukte_buttons)
@@ -147,6 +151,7 @@ def main():
             draw_button(screen, font, btn_add_normal_lift, "+ normale lift")
             draw_button(screen, font, btn_add_fast_lift, "+ snelle lift")
             draw_button(screen, font, btn_remove_lift, "lift verwijderen")
+            draw_button(screen, font, btn_restart_day, "dag herstarten")
             draw_button(screen, font, btn_monitor, "tweede scherm")
 
         pygame.display.flip()
