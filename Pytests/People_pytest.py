@@ -91,3 +91,51 @@ def test_person_can_enter_lift_if_capacity_available(basic_setup):
     )
 
     assert person["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+
+
+def test_person_does_not_enter_full_lift(basic_setup):
+    _, people, waiting_lines, lifts = basic_setup
+
+    for i in range(10):
+        people.append(
+            make_person(
+                person_id=i,
+                state="IN_LIFT",
+                elevator_id=0
+            )
+        )
+
+    waiting_person = make_person(person_id=99)
+    people.append(waiting_person)
+
+    People.update_people(
+        people,
+        waiting_lines,
+        0.1,
+        5,
+        800,
+        100,
+        lifts,
+        [],
+        []
+    )
+
+    assert waiting_person["state"] == "WAITING"
+
+
+def test_wait_time_increases():
+    people = [make_person(wait_time=0.0)]
+
+    People.update_people(
+        people,
+        {},
+        1.0,
+        5,
+        800,
+        100,
+        [],
+        [],
+        []
+    )
+
+    assert people[0]["wait_time"] > 0
