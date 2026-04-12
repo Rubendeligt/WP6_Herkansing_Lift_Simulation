@@ -33,14 +33,14 @@ def draw_building(
 ) -> None:
     building_height = HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
     floor_height = building_height / floors
+    building_right = screen.get_width() - 200
 
     left = shaft_positions[0]
-    right = screen.get_width() - 200
     corridor_x = shaft_positions[-1] + shaft_w
     corridor_rect = pygame.Rect(
         int(corridor_x),
         int(TOP_MARGIN),
-        int(right - corridor_x),
+        int(building_right - corridor_x),
         int(building_height)
     )
     pygame.draw.rect(screen, (230, 222, 220), corridor_rect)
@@ -91,25 +91,23 @@ def draw_building(
         y = TOP_MARGIN + floor * floor_height
 
         left = shaft_positions[0]
-        right = shaft_positions[-1] + shaft_w + 600
 
         pygame.draw.line(
             screen,
             (120, 120, 130),
             (left, y),
-            (right, y),
+            (building_right, y),
             2
         )
 
     top = TOP_MARGIN
     bottom = TOP_MARGIN + building_height
-    right = screen.get_width() - 200
 
     pygame.draw.line(
         screen,
         (120, 120, 130),
-        (right, top),
-        (right, bottom),
+        (building_right, top),
+        (building_right, bottom),
         2
     )
     pygame.draw.rect(
