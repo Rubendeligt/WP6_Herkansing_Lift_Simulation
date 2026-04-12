@@ -151,7 +151,7 @@ def main():
             draw_button(screen, font, btn_add_normal_lift, "+ normale lift")
             draw_button(screen, font, btn_add_fast_lift, "+ snelle lift")
             draw_button(screen, font, btn_remove_lift, "lift verwijderen")
-            draw_restart_button(screen, font, btn_restart_day, "dag opnieuw starten")
+            draw_restart_button(screen, font, btn_restart_day, "herstart dag")
             draw_button(screen, font, btn_monitor, "tweede scherm")
 
         pygame.display.flip()
