@@ -208,3 +208,23 @@ def draw_restart_button(screen, font, rect, text):
     text_surf = font.render(text, True, text_color)
     text_rect = text_surf.get_rect(center=rect.center)
     screen.blit(text_surf, text_rect)
+
+def draw_day_finished(screen, simulation):
+    if not simulation.day_finished:
+        return
+
+    overlay = pygame.Surface(screen.get_size(), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 120))
+    screen.blit(overlay, (0, 0))
+
+    title_font = pygame.font.SysFont("arial", 48, bold=True)
+    text_font = pygame.font.SysFont("arial", 28)
+
+    title = title_font.render("De dag is klaar", True, (255, 255, 255))
+    subtitle = text_font.render("Druk op 'reset dag' om opnieuw te starten", True, (230, 230, 230))
+
+    title_rect = title.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 - 20))
+    subtitle_rect = subtitle.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2 + 30))
+
+    screen.blit(title, title_rect)
+    screen.blit(subtitle, subtitle_rect)

@@ -58,6 +58,7 @@ class Simulation:
         self.close_time_minutes = 21 * 60
         self.time_minutes = self.open_time_minutes
         self.time_speed = 5
+        self.day_finished = False
         self.last_logged_hour = int(self.time_minutes // 60)
         self.rush_periods = [
             {
@@ -250,8 +251,11 @@ class Simulation:
 
     def update(self, dt: float) -> None:
         self.time_minutes += dt * self.time_speed
-        if self.time_minutes > self.close_time_minutes:
+        if self.time_minutes >= self.close_time_minutes:
             self.time_minutes = self.close_time_minutes
+            self.day_finished = True
+        else:
+            self.day_finished = False
            
         self.wait_time_timer += dt
         self.graph_log_timer += dt * self.time_speed
@@ -452,6 +456,7 @@ class Simulation:
         self.wait_time_timer = 0.0
         self.graph_log_timer = 0.0
         self.displayed_average_wait_time = 0.0
+        self.day_finished = False
 
         self.wait_time_history = {
         "all": [],

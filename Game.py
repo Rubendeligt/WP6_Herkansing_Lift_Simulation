@@ -6,7 +6,7 @@ from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
-from Python.Draw import draw_information_panel, draw_time, draw_button, draw_restart_button
+from Python.Draw import draw_information_panel, draw_time, draw_button, draw_restart_button, draw_day_finished
 from Python.Drukte import (DruktePanel, draw_drukte_panel, handle_drukte_click, get_drukte_buttons,)
 
 
@@ -180,6 +180,8 @@ def main():
             draw_button(screen, font, btn_close_earlier, "sluiting - 1 uur")
             draw_button(screen, font, btn_close_later, "sluiting + 1 uur")
             draw_button(screen, font, btn_monitor, "tweede scherm")
+            if current_view == "simulation":
+                draw_day_finished(screen, simulation)
 
         pygame.display.flip()
 
