@@ -47,7 +47,8 @@ class DruktePanel:
             self.tab_width,
             self.tab_height
         )
-    
+
+
 def get_drukte_buttons(simulation, drukte_panel):
     panel_rect = drukte_panel.get_panel_rect()
 
@@ -90,6 +91,7 @@ def draw_drukte_panel(screen, font, simulation, drukte_panel):
     hover = (220, 223, 230)
 
     mouse_pos = pygame.mouse.get_pos()
+
     pygame.draw.rect(screen, bg, tab_rect, border_radius=10)
     pygame.draw.rect(screen, border, tab_rect, 2, border_radius=10)
 
@@ -98,6 +100,7 @@ def draw_drukte_panel(screen, font, simulation, drukte_panel):
     rotated = pygame.transform.rotate(tab_text, 90)
     rotated_rect = rotated.get_rect(center=tab_rect.center)
     screen.blit(rotated, rotated_rect)
+
     pygame.draw.rect(screen, bg, panel_rect)
     pygame.draw.line(screen, border, (panel_rect.x, 0), (panel_rect.x, panel_rect.bottom), 2)
 
@@ -122,16 +125,28 @@ def draw_drukte_panel(screen, font, simulation, drukte_panel):
         pygame.draw.rect(screen, card, card_rect, border_radius=14)
         pygame.draw.rect(screen, soft, card_rect, 1, border_radius=14)
 
-        label = small_font.render(f"Periode {i + 1}", True, text)
-        screen.blit(label, (card_rect.x + 12, card_rect.y + 10))
+        # labels
+        screen.blit(small_font.render("Start", True, text), (panel_rect.x + 24, row_y + 10))
+        screen.blit(small_font.render("Eind", True, text), (panel_rect.x + 140, row_y + 10))
+        screen.blit(small_font.render("Drukte", True, text), (panel_rect.x + 258, row_y + 10))
 
-        info = f"{period['start_hour']:02d}:00 - {period['end_hour']:02d}:00    x{period['multiplier']:.1f}"
-        info_surface = small_font.render(info, True, title_color)
-        screen.blit(info_surface, (card_rect.x + 12, card_rect.y + 30))
+        # waarden
+        start_value = f'{period["start_hour"]:02d}:00'
+        end_value = f'{period["end_hour"]:02d}:00'
+        mult_value = f'x{period["multiplier"]:.1f}'
 
-        screen.blit(small_font.render("start", True, text), (panel_rect.x + 24, row_y + 22))
-        screen.blit(small_font.render("eind", True, text), (panel_rect.x + 140, row_y + 22))
-        screen.blit(small_font.render("drukte", True, text), (panel_rect.x + 258, row_y + 22))
+        screen.blit(
+            small_font.render(start_value, True, title_color),
+            (panel_rect.x + 24, row_y + 30)
+        )
+        screen.blit(
+            small_font.render(end_value, True, title_color),
+            (panel_rect.x + 140, row_y + 30)
+        )
+        screen.blit(
+            small_font.render(mult_value, True, title_color),
+            (panel_rect.x + 274, row_y + 30)
+        )
 
     for action, idx, rect in drukte_buttons:
         color = hover if rect.collidepoint(mouse_pos) else button

@@ -46,9 +46,12 @@ def main():
             btn_add_fast_lift,
             btn_remove_lift,
         ) = setting_sidebar.get_button_rects()
+        info_open = info_panel.get_panel_rect().x < info_panel.screen_width
+        drukte_open = drukte_panel.get_panel_rect().x < drukte_panel.screen_width
+        setting_open = setting_sidebar.get_panel_rect().x < setting_sidebar.screen_width
 
         drukte_buttons = []
-        if current_view == "simulation" and drukte_panel.get_panel_rect().x < drukte_panel.screen_width:
+        if current_view == "simulation" and drukte_open:
             drukte_buttons = get_drukte_buttons(simulation, drukte_panel)
 
         for event in pygame.event.get():
@@ -60,10 +63,6 @@ def main():
                     running = False
 
             if current_view == "simulation":
-                info_open = info_panel.get_panel_rect().x < info_panel.screen_width
-                drukte_open = drukte_panel.get_panel_rect().x < drukte_panel.screen_width
-                setting_open = setting_sidebar.get_panel_rect().x < setting_sidebar.screen_width
-
                 if info_open:
                     info_panel.handle_event(event)
                 elif drukte_open:
@@ -120,7 +119,8 @@ def main():
             simulation.update(dt)
             info_panel.update(dt)
             drukte_panel.update(dt)
-            setting_sidebar.update(dt)
+            if not info_open and not drukte_open:
+                setting_sidebar.update(dt)
 
         renderer.update_animations(dt)
 
@@ -140,7 +140,8 @@ def main():
             draw_information_panel(screen, info_panel, font, simulation)
             draw_time(screen, font, simulation)
             draw_drukte_panel(screen, font, simulation, drukte_panel)
-            draw_Setting_sidebar(screen, font, setting_sidebar)
+            if not info_open and not drukte_open:
+                draw_Setting_sidebar(screen, font, setting_sidebar)
             draw_button(screen, font, btn_minus, "verdieping minder")
             draw_button(screen, font, btn_plus, "verdieping meer")
             draw_button(screen, font, btn_add_normal_lift, "+ normale lift")
