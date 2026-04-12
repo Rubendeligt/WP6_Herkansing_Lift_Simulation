@@ -180,8 +180,8 @@ def draw_information_panel(screen, info_panel, font, simulation):
     time_text = font.render(f"Tijd: {simulation.get_time_string()}", True, (255, 255, 255))
     screen.blit(time_text, (20, 20))
 
-    draw_wait_time_graph(screen, panel, font, simulation)
-    draw_people_graph(screen, panel, font, simulation)
+    draw_wait_time_graph(screen, panel, font, simulation, info_panel.active_filter)
+    draw_people_graph(screen, panel, font, simulation, info_panel.active_filter)
 
 def draw_time(screen, font, simulation):
     time_str = simulation.get_time_string()

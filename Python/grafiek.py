@@ -1,8 +1,8 @@
 import pygame
 
 # m.b.v Stackoverflow
-def draw_wait_time_graph(screen, panel_rect, font, simulation):
-    history = simulation.get_wait_time_history()
+def draw_wait_time_graph(screen, panel_rect, font, simulation, lift_filter="all"):
+    history = simulation.get_wait_time_history(lift_filter)
 
     graph_margin_x = 20
     graph_margin_top = 280
@@ -91,8 +91,8 @@ def draw_wait_time_graph(screen, panel_rect, font, simulation):
     screen.blit(start_text, (graph_rect.x + 35, graph_rect.bottom - 20))
     screen.blit(end_text, (graph_rect.right - end_text.get_width() - 10, graph_rect.bottom - 20))
 
-def draw_people_graph(screen, panel_rect, font, simulation):
-    history = simulation.get_people_history()
+def draw_people_graph(screen, panel_rect, font, simulation, lift_filter="all"):
+    history = simulation.get_people_history(lift_filter)
 
     graph_margin_x = 20
     graph_margin_top = 500
