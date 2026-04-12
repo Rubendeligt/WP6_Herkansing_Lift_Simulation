@@ -154,6 +154,9 @@ class Simulation:
     def add_lift(self, lift_type: str) -> None:
         if lift_type not in ("normal", "fast"):
             return
+        
+        if len(self.lifts) >= 8:
+            return
 
         speed = self.normal_speed if lift_type == "normal" else self.fast_speed
 
