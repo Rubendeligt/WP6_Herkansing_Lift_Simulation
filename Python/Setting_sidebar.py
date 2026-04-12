@@ -132,11 +132,12 @@ def draw_Setting_sidebar(screen, font, setting_sidebar, simulation):
     close_h = simulation.close_time_minutes // 60
     close_m = simulation.close_time_minutes % 60
 
-    screen.blit(
-    small_font.render(f"Openingstijd: {open_h:02d}:{open_m:02d}", True, text_color),
-    (panel_rect.x + 24, label_y)
+    open_text = small_font.render(
+    f"Openingstijd: {open_h:02d}:{open_m:02d}", True, text_color
 )
-    screen.blit(
-    small_font.render(f"Sluitingstijd: {close_h:02d}:{close_m:02d}", True, text_color),
-    (panel_rect.x + 24, label_y + 90)
+    close_text = small_font.render(
+    f"Sluitingstijd: {close_h:02d}:{close_m:02d}", True, text_color
 )
+
+    screen.blit(open_text, (panel_rect.x + 24, label_y))
+    screen.blit(close_text, (panel_rect.x + 190, label_y))
