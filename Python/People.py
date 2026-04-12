@@ -19,6 +19,20 @@ def floor_center_y(floor_index: int, floors: int, HEIGHT: int) -> float:
     return TOP_MARGIN + (floors - 1 - floor_index) * floor_height + floor_height / 2
 
 
+def get_spawn_multiplier(time_minutes: float, rush_periods: list) -> float:
+    for period in rush_periods:
+        start = period["start_hour"] * 60 + period["start_minute"]
+        end = period["end_hour"] * 60 + period["end_minute"]
+
+        if start <= time_minutes < end:
+            return period["multiplier"]
+
+    if time_minutes >= 18 * 60:
+        return 0.25
+
+    return 1.0
+
+
 def maybe_spawn_person(
     rng: random.Random,
     people: list,
@@ -27,21 +41,10 @@ def maybe_spawn_person(
     HEIGHT: int,
     rest_x: int,
     next_person_id: int,
-    time_minutes: float
+    time_minutes: float,
+    rush_periods: list
 ) -> int:
-    hours = int(time_minutes // 60)
-    minutes = int(time_minutes % 60)
-
-    spawn_rate = SPAWN_CHANCE_PER_SEC
-    if (hours == 8 and minutes >= 15) or (hours == 8 and minutes < 45):
-        spawn_rate *= 2.5
-    elif hours == 12:
-        spawn_rate *= 3.5
-    elif hours == 17:
-        spawn_rate *= 2.5
-
-    elif hours >= 18:
-        spawn_rate *= 0.25
+    spawn_rate = SPAWN_CHANCE_PER_SEC * get_spawn_multiplier(time_minutes, rush_periods)
 
     if rng.random() < spawn_rate * dt:
         start_floor = rng.randrange(0, floors)
@@ -50,6 +53,7 @@ def maybe_spawn_person(
         dest_floor = rng.randrange(0, floors)
         while dest_floor == start_floor and floors > 1:
             dest_floor = rng.randrange(0, floors)
+
         spawn_x = SPAWN_RECT_X
 
         people.append({

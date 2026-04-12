@@ -41,15 +41,74 @@ class Simulation:
         self.recent_wait_times = []
         self.wait_time_timer = 0.0
         self.displayed_average_wait_time = 0.0
-        self.wait_time_history = []
-        self.people_history = []
+        self.wait_time_history = {
+            "all": [],
+            "normal": [],
+            "fast": [],
+        }
+        self.people_history = {
+            "all": [],
+            "normal": [],
+            "fast": [],
+        }
 
         self.time_minutes = 7 * 60
         self.time_speed = 5
         self.last_logged_hour = int(self.time_minutes // 60)
+        self.rush_periods = [
+            {
+                "start_hour": 8,
+                "start_minute": 15,
+                "end_hour": 8,
+                "end_minute": 45,
+                "multiplier": 2.5,
+            },
+            {
+                "start_hour": 12,
+                "start_minute": 0,
+                "end_hour": 13,
+                "end_minute": 0,
+                "multiplier": 3.5,
+            },
+            {
+                "start_hour": 17,
+                "start_minute": 0,
+                "end_hour": 18,
+                "end_minute": 0,
+                "multiplier": 2.5,
+            },
+        ]
 
         self.maybe_spawn_person = PeopleModule.maybe_spawn_person
         self.update_people = PeopleModule.update_people
+
+    def get_average_wait_time_filtered_live(self, lift_filter="all") -> float:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        wait_times = [
+            p["wait_time"]
+            for p in self.people
+            if p.get("elevator_id") in selected_ids
+            and p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+        ]
+
+        if not wait_times:
+            return 0.0
+
+        return sum(wait_times) / len(wait_times)
+
+
+    def get_people_count_filtered_live(self, lift_filter="all") -> int:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        return sum(
+        1
+        for p in self.people
+        if p.get("elevator_id") in selected_ids
+        and p["state"] in ("BOARDING", "IN_LIFT")
+        )
 
     def _recalculate_lift_layout(self) -> None:
         self.total_lifts = len(self.lifts)
@@ -131,6 +190,31 @@ class Simulation:
             lift["floor"] = int(round(lift["floor_pos"]))
 
         self._recalculate_lift_layout()
+    def set_rush_period(
+        self,
+        index: int,
+        start_hour: int = None,
+        start_minute: int = None,
+        end_hour: int = None,
+        end_minute: int = None,
+        multiplier: float = None,
+    ) -> None:
+        if not (0 <= index < len(self.rush_periods)):
+            return
+
+        period = self.rush_periods[index]
+
+        if start_hour is not None:
+            period["start_hour"] = max(0, min(23, int(start_hour)))
+        if start_minute is not None:
+            period["start_minute"] = max(0, min(59, int(start_minute)))
+        if end_hour is not None:
+            period["end_hour"] = max(0, min(23, int(end_hour)))
+        if end_minute is not None:
+            period["end_minute"] = max(0, min(59, int(end_minute)))
+        if multiplier is not None:
+            period["multiplier"] = max(0.1, float(multiplier))
+
     def update(self, dt: float) -> None:
         self.time_minutes += dt * self.time_speed
         if self.time_minutes > 21 * 60:
@@ -149,13 +233,21 @@ class Simulation:
             current_hour = int(self.time_minutes // 60)
 
             if current_hour != self.last_logged_hour:
-                self.wait_time_history.append(
-                    (self.time_minutes, self.displayed_average_wait_time)
+                for lift_filter in ("all", "normal", "fast"):
+                    self.wait_time_history[lift_filter].append(
+                (
+                    self.time_minutes,
+                    self.get_average_wait_time_filtered_live(lift_filter)
                 )
-                self.people_history.append(
-                    (self.time_minutes, len(self.people))
-                )
-                self.last_logged_hour = current_hour
+            )
+                self.people_history[lift_filter].append(
+            (
+                self.time_minutes,
+                self.get_people_count_filtered_live(lift_filter)
+            )
+        )
+
+            self.last_logged_hour = current_hour
 
             self.recent_wait_times.clear()
             self.wait_time_timer = 0.0
@@ -168,7 +260,8 @@ class Simulation:
             self.height,
             self.rest_x,
             self.next_person_id,
-            self.time_minutes
+            self.time_minutes,
+            self.rush_periods,
         )
 
         for lift in self.lifts:
@@ -224,15 +317,60 @@ class Simulation:
     
     def get_average_wait_time(self) -> float:
         return self.displayed_average_wait_time
-    
+
+    def get_lifts_by_type(self, lift_filter="all"):
+        if lift_filter == "normal":
+            return [lift for lift in self.lifts if lift["type"] == "normal"]
+        if lift_filter == "fast":
+            return [lift for lift in self.lifts if lift["type"] == "fast"]
+        return self.lifts
+
+    def get_lift_count_filtered(self, lift_filter="all") -> int:
+        return len(self.get_lifts_by_type(lift_filter))
+
+    def get_people_count_filtered(self, lift_filter="all") -> int:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        return sum(
+            1
+            for p in self.people
+            if p.get("elevator_id") in selected_ids and p["state"] in ("BOARDING", "IN_LIFT")
+        )
+
+    def get_average_wait_time_filtered(self, lift_filter="all") -> float:
+        selected_lifts = self.get_lifts_by_type(lift_filter)
+        selected_ids = {lift["id"] for lift in selected_lifts}
+
+        wait_times = [
+            p["wait_time"]
+            for p in self.people
+            if p.get("elevator_id") in selected_ids and p["state"] in ("WAITING", "BOARDING", "IN_LIFT")
+        ]
+
+        if not wait_times:
+            return 0.0
+
+        return sum(wait_times) / len(wait_times)
+
     def get_time_string(self) -> str:
         total_minutes = int(self.time_minutes)
         hours = total_minutes // 60
         minutes = total_minutes % 60
         return f"{hours:02d}:{minutes:02d}"
     
-    def get_wait_time_history(self):
-        return self.wait_time_history
+    def get_wait_time_history(self, lift_filter="all"):
+        return self.wait_time_history.get(lift_filter, [])
 
-    def get_people_history(self):
-        return self.people_history
+    def get_people_history(self, lift_filter="all"):
+        return self.people_history.get(lift_filter, [])
+    
+    def get_lift_destinations(self, lift_id: int) -> dict[int, int]:
+        counts = {}
+
+        for p in self.people:
+            if p.get("elevator_id") == lift_id and p["state"] in ("BOARDING", "IN_LIFT"):
+                dest = p["dest"]
+                counts[dest] = counts.get(dest, 0) + 1
+
+        return dict(sorted(counts.items()))

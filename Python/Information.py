@@ -16,6 +16,8 @@ class InformationPanel:
         self.x = width
         self.target_x = width
 
+        self.active_filter = "all"
+
     def toggle(self):
         self.open = not self.open
         if self.open:
@@ -41,8 +43,25 @@ class InformationPanel:
 
             if button_rect.collidepoint(event.pos):
                 self.toggle()
-            elif self.open and not panel_rect.collidepoint(event.pos):
-                self.toggle()
+                return
+
+            if self.open:
+                all_rect, normal_rect, fast_rect = self.get_filter_button_rects()
+
+                if all_rect.collidepoint(event.pos):
+                    self.active_filter = "all"
+                    return
+
+                if normal_rect.collidepoint(event.pos):
+                    self.active_filter = "normal"
+                    return
+
+                if fast_rect.collidepoint(event.pos):
+                    self.active_filter = "fast"
+                    return
+
+                if not panel_rect.collidepoint(event.pos):
+                    self.toggle()
 
     def get_button_rect(self):
         return pygame.Rect(
@@ -54,3 +73,19 @@ class InformationPanel:
 
     def get_panel_rect(self):
         return pygame.Rect(int(self.x), 0, self.width, self.screen_height)
+
+    def get_filter_button_rects(self):
+        panel = self.get_panel_rect()
+
+        btn_w = 110
+        btn_h = 36
+        gap = 10
+
+        top_y = panel.y + 70
+        start_x = panel.right - btn_w - 20
+
+        all_rect = pygame.Rect(start_x, top_y, btn_w, btn_h)
+        normal_rect = pygame.Rect(start_x, top_y + btn_h + gap, btn_w, btn_h)
+        fast_rect = pygame.Rect(start_x, top_y + (btn_h + gap) * 2, btn_w, btn_h)
+
+        return all_rect, normal_rect, fast_rect
