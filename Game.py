@@ -6,7 +6,7 @@ from Python.Variables import MIN_FLOORS, MAX_FLOORS, make_buttons
 from Python.simulation import Simulation
 from Python.renderer import Renderer
 from Python.Information import InformationPanel
-from Python.Draw import draw_information_panel, draw_time, draw_button
+from Python.Draw import draw_information_panel, draw_time, draw_button, draw_restart_button
 from Python.Drukte import (DruktePanel, draw_drukte_panel, handle_drukte_click, get_drukte_buttons,)
 
 
@@ -151,7 +151,7 @@ def main():
             draw_button(screen, font, btn_add_normal_lift, "+ normale lift")
             draw_button(screen, font, btn_add_fast_lift, "+ snelle lift")
             draw_button(screen, font, btn_remove_lift, "lift verwijderen")
-            draw_button(screen, font, btn_restart_day, "dag herstarten")
+            draw_restart_button(screen, font, btn_restart_day, "dag opnieuw starten")
             draw_button(screen, font, btn_monitor, "tweede scherm")
 
         pygame.display.flip()

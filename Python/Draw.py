@@ -192,3 +192,19 @@ def draw_time(screen, font, simulation):
 
     pygame.draw.rect(screen, (0, 0, 0), bg_rect, border_radius=8)
     screen.blit(text, text_rect)
+
+def draw_restart_button(screen, font, rect, text):
+    bg_color = (220, 70, 70)        # red
+    hover_color = (240, 90, 90)
+    text_color = (255, 255, 255)
+    border_color = (150, 30, 30)
+
+    mouse_pos = pygame.mouse.get_pos()
+    color = hover_color if rect.collidepoint(mouse_pos) else bg_color
+
+    pygame.draw.rect(screen, color, rect, border_radius=10)
+    pygame.draw.rect(screen, border_color, rect, 2, border_radius=10)
+
+    text_surf = font.render(text, True, text_color)
+    text_rect = text_surf.get_rect(center=rect.center)
+    screen.blit(text_surf, text_rect)
