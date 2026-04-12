@@ -29,6 +29,9 @@ class Simulation:
         self.lifts = []
         self.next_lift_id = 0
         self.add_lift("normal")
+        self.add_lift("normal")
+        self.add_lift("fast")
+        self.add_lift("fast")
 
         self.rng = random.Random(7)
         self.people = []
