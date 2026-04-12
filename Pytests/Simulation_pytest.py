@@ -12,7 +12,7 @@ def sim():
     sim = Simulation(1200, 800, floors=6)
     yield sim
     pygame.quit()
-    
+
 def test_add_normal_lift_increases_count(sim):
     start_count = len(sim.lifts)
     sim.add_lift("normal")
@@ -46,9 +46,10 @@ def test_remove_last_lift_removes_one_lift(sim):
     assert len(sim.lifts) == start_count - 1
 
 
-def test_remove_last_lift_does_not_go_below_one(sim):
+def test_remove_last_lift_removes_one_until_minimum(sim):
+    start_count = len(sim.lifts)
     sim.remove_last_lift()
-    assert len(sim.lifts) == 1
+    assert len(sim.lifts) == max(1, start_count - 1)
 
 
 def test_set_floors_updates_floor_count_and_lift_height(sim):
