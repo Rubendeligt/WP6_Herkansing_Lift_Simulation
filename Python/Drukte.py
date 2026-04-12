@@ -59,14 +59,14 @@ def get_drukte_buttons(simulation, drukte_panel):
     for i, period in enumerate(simulation.rush_periods):
         row_y = panel_rect.y + start_y + i * row_height
 
-        start_minus = pygame.Rect(panel_rect.x + 24, row_y + 42, 30, 30)
-        start_plus = pygame.Rect(panel_rect.x + 60, row_y + 42, 30, 30)
+        start_minus = pygame.Rect(panel_rect.x + 24, row_y + 55, 30, 30)
+        start_plus = pygame.Rect(panel_rect.x + 60, row_y + 55, 30, 30)
 
-        end_minus = pygame.Rect(panel_rect.x + 140, row_y + 42, 30, 30)
-        end_plus = pygame.Rect(panel_rect.x + 176, row_y + 42, 30, 30)
+        end_minus = pygame.Rect(panel_rect.x + 140, row_y + 55, 30, 30)
+        end_plus = pygame.Rect(panel_rect.x + 176, row_y + 55, 30, 30)
 
-        mult_minus = pygame.Rect(panel_rect.x + 274, row_y + 42, 30, 30)
-        mult_plus = pygame.Rect(panel_rect.x + 310, row_y + 42, 30, 30)
+        mult_minus = pygame.Rect(panel_rect.x + 274, row_y + 55, 30, 30)
+        mult_plus = pygame.Rect(panel_rect.x + 310, row_y + 55, 30, 30)
 
         button_map.append(("start_hour_minus", i, start_minus))
         button_map.append(("start_hour_plus", i, start_plus))
@@ -126,9 +126,9 @@ def draw_drukte_panel(screen, font, simulation, drukte_panel):
         pygame.draw.rect(screen, soft, card_rect, 1, border_radius=14)
 
         # labels
-        screen.blit(small_font.render("Start", True, text), (panel_rect.x + 24, row_y + 10))
-        screen.blit(small_font.render("Eind", True, text), (panel_rect.x + 140, row_y + 10))
-        screen.blit(small_font.render("Drukte", True, text), (panel_rect.x + 258, row_y + 10))
+        screen.blit(small_font.render("Start", True, text), (panel_rect.x + 24, row_y + 6))
+        screen.blit(small_font.render("Eind", True, text), (panel_rect.x + 140, row_y + 6))
+        screen.blit(small_font.render("Drukte", True, text), (panel_rect.x + 258, row_y + 6))
 
         # waarden
         start_value = f'{period["start_hour"]:02d}:00'
