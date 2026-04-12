@@ -62,11 +62,17 @@ class SettingSidebar:
         btn_add_normal_lift = pygame.Rect(left, start_y + 2 * (button_height + gap), button_width, button_height)
         btn_add_fast_lift = pygame.Rect(left, start_y + 3 * (button_height + gap), button_width, button_height)
         btn_remove_lift = pygame.Rect(left, start_y + 4 * (button_height + gap), button_width, button_height)
+
+        btn_open_earlier = pygame.Rect(left, start_y + 6 * (button_height + gap), button_width, button_height)
+        btn_open_later = pygame.Rect(left, start_y + 7 * (button_height + gap), button_width, button_height)
+        btn_close_earlier = pygame.Rect(left, start_y + 8 * (button_height + gap), button_width, button_height)
+        btn_close_later = pygame.Rect(left, start_y + 9 * (button_height + gap), button_width, button_height)
+
         btn_restart_day = pygame.Rect(
-        panel_rect.right - 140,  
-        panel_rect.y + 20,     
-        120,                 
-        36                        
+            panel_rect.right - 140,
+            panel_rect.y + 20,
+            120,
+            36
     )
 
         return (
@@ -76,10 +82,14 @@ class SettingSidebar:
             btn_add_fast_lift,
             btn_remove_lift,
             btn_restart_day,
+            btn_open_earlier,
+            btn_open_later,
+            btn_close_earlier,
+            btn_close_later,
         )
 
 
-def draw_Setting_sidebar(screen, font, setting_sidebar):
+def draw_Setting_sidebar(screen, font, setting_sidebar, simulation):
     panel_rect = setting_sidebar.get_panel_rect()
     tab_rect = setting_sidebar.get_tab_rect()
 
@@ -113,3 +123,20 @@ def draw_Setting_sidebar(screen, font, setting_sidebar):
     box = pygame.Rect(panel_rect.x + 18, 95, panel_rect.width - 36, 330)
     pygame.draw.rect(screen, section_bg, box, border_radius=14)
     pygame.draw.rect(screen, soft, box, 1, border_radius=14)
+
+    small_font = pygame.font.SysFont("arial", 16)
+    label_y = 430
+
+    open_h = simulation.open_time_minutes // 60
+    open_m = simulation.open_time_minutes % 60
+    close_h = simulation.close_time_minutes // 60
+    close_m = simulation.close_time_minutes % 60
+
+    screen.blit(
+    small_font.render(f"Openingstijd: {open_h:02d}:{open_m:02d}", True, text_color),
+    (panel_rect.x + 24, label_y)
+)
+    screen.blit(
+    small_font.render(f"Sluitingstijd: {close_h:02d}:{close_m:02d}", True, text_color),
+    (panel_rect.x + 24, label_y + 90)
+)

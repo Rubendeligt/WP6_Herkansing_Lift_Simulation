@@ -54,7 +54,9 @@ class Simulation:
             "fast": [],
         }
 
-        self.time_minutes = 7 * 60
+        self.open_time_minutes = 7 * 60
+        self.close_time_minutes = 21 * 60
+        self.time_minutes = self.open_time_minutes
         self.time_speed = 5
         self.last_logged_hour = int(self.time_minutes // 60)
         self.rush_periods = [
@@ -248,8 +250,8 @@ class Simulation:
 
     def update(self, dt: float) -> None:
         self.time_minutes += dt * self.time_speed
-        if self.time_minutes > 21 * 60:
-            self.time_minutes = 21 * 60
+        if self.time_minutes > self.close_time_minutes:
+            self.time_minutes = self.close_time_minutes
            
         self.wait_time_timer += dt
         self.graph_log_timer += dt * self.time_speed
@@ -420,3 +422,54 @@ class Simulation:
                 counts[dest] = counts.get(dest, 0) + 1
 
         return dict(sorted(counts.items()))
+       
+    def set_open_time(self, hour: int, minute: int = 0) -> None:
+        total = max(0, min(23 * 60 + 59, hour * 60 + minute))
+        if total >= self.close_time_minutes:
+            total = max(0, self.close_time_minutes - 1)
+
+        self.open_time_minutes = total
+
+        if self.time_minutes < self.open_time_minutes:
+            self.time_minutes = self.open_time_minutes
+
+
+    def set_close_time(self, hour: int, minute: int = 0) -> None:
+        total = max(0, min(23 * 60 + 59, hour * 60 + minute))
+        if total <= self.open_time_minutes:
+            total = min(23 * 60 + 59, self.open_time_minutes + 1)
+
+        self.close_time_minutes = total
+
+        if self.time_minutes > self.close_time_minutes:
+            self.time_minutes = self.close_time_minutes
+
+    def restart_day(self) -> None:
+        self.people.clear()
+        self.waiting_lines.clear()
+        self.completed_wait_times.clear()
+        self.recent_wait_times.clear()
+        self.wait_time_timer = 0.0
+        self.graph_log_timer = 0.0
+        self.displayed_average_wait_time = 0.0
+
+        self.wait_time_history = {
+        "all": [],
+        "normal": [],
+        "fast": [],
+    }
+        self.people_history = {
+        "all": [],
+        "normal": [],
+        "fast": [],
+    }
+
+        self.time_minutes = self.open_time_minutes
+        self.last_logged_hour = int(self.time_minutes // 60)
+        self.next_person_id = 1
+
+        for i, lift in enumerate(self.lifts):
+            lift["floor_pos"] = float(min(self.floors - 1, i))
+            lift["dir"] = 1 if i % 2 == 0 else -1
+            lift["floor"] = int(round(lift["floor_pos"]))
+            lift["ready"] = True

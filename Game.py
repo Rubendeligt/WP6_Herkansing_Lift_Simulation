@@ -46,6 +46,10 @@ def main():
             btn_add_fast_lift,
             btn_remove_lift,
             btn_restart_day,
+            btn_open_earlier,
+            btn_open_later,
+            btn_close_earlier,
+            btn_close_later,
         ) = setting_sidebar.get_button_rects()
         info_open = info_panel.get_panel_rect().x < info_panel.screen_width
         drukte_open = drukte_panel.get_panel_rect().x < drukte_panel.screen_width
@@ -98,7 +102,26 @@ def main():
                         simulation.remove_last_lift()
 
                     elif btn_restart_day.collidepoint(mouse_pos):
-                        simulation = Simulation(width, height, floors=simulation.floors)
+                        simulation.restart_day()
+
+                    elif btn_restart_day.collidepoint(mouse_pos):
+                        simulation.restart_day()
+
+                    elif btn_open_earlier.collidepoint(mouse_pos):
+                        new_time = max(0, simulation.open_time_minutes - 60)
+                        simulation.set_open_time(new_time // 60, new_time % 60)
+
+                    elif btn_open_later.collidepoint(mouse_pos):
+                        new_time = min(simulation.close_time_minutes - 1, simulation.open_time_minutes + 60)
+                        simulation.set_open_time(new_time // 60, new_time % 60)
+
+                    elif btn_close_earlier.collidepoint(mouse_pos):
+                        new_time = max(simulation.open_time_minutes + 1, simulation.close_time_minutes - 60)
+                        simulation.set_close_time(new_time // 60, new_time % 60)
+
+                    elif btn_close_later.collidepoint(mouse_pos):
+                        new_time = min(23 * 60 + 59, simulation.close_time_minutes + 60)
+                        simulation.set_close_time(new_time // 60, new_time % 60)
 
                     else:
                         handle_drukte_click(mouse_pos, simulation, drukte_buttons)
@@ -145,13 +168,17 @@ def main():
             draw_time(screen, font, simulation)
             draw_drukte_panel(screen, font, simulation, drukte_panel)
             if not info_open and not drukte_open:
-                draw_Setting_sidebar(screen, font, setting_sidebar)
+                draw_Setting_sidebar(screen, font, setting_sidebar, simulation)
             draw_button(screen, font, btn_minus, "verdieping minder")
             draw_button(screen, font, btn_plus, "verdieping meer")
             draw_button(screen, font, btn_add_normal_lift, "+ normale lift")
             draw_button(screen, font, btn_add_fast_lift, "+ snelle lift")
             draw_button(screen, font, btn_remove_lift, "lift verwijderen")
             draw_restart_button(screen, font, btn_restart_day, "herstart dag")
+            draw_button(screen, font, btn_open_earlier, "opening - 1 uur")
+            draw_button(screen, font, btn_open_later, "opening + 1 uur")
+            draw_button(screen, font, btn_close_earlier, "sluiting - 1 uur")
+            draw_button(screen, font, btn_close_later, "sluiting + 1 uur")
             draw_button(screen, font, btn_monitor, "tweede scherm")
 
         pygame.display.flip()
