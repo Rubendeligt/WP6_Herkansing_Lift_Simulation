@@ -126,12 +126,26 @@ def update_people(
 
             floor_lifts = ready_lifts_by_floor.get(p["floor"], [])
             if floor_lifts:
-                chosen_lift = min(
-                    floor_lifts,
-                    key=lambda lift: abs(p["x"] - lift["people_x"])
-                )
-                p["state"] = "BOARDING"
-                p["elevator_id"] = chosen_lift["id"]
+                available_lifts = []
+
+                for lift in floor_lifts:
+                    passenger_count = sum(
+                        1
+                        for other in people
+                        if other.get("elevator_id") == lift["id"]
+                        and other["state"] in ("BOARDING", "IN_LIFT")
+                    )
+
+                    if passenger_count < 10:
+                        available_lifts.append(lift)
+
+                if available_lifts:
+                    chosen_lift = min(
+                        available_lifts,
+                        key=lambda lift: abs(p["x"] - lift["people_x"])
+                    )
+                    p["state"] = "BOARDING"
+                    p["elevator_id"] = chosen_lift["id"]
 
         if p["state"] == "BOARDING":
             p["y"] = float(floor_center_y(p["floor"], floors, HEIGHT))

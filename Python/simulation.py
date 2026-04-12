@@ -173,6 +173,7 @@ class Simulation:
             "floor": min(self.floors - 1, len(self.lifts)),
             "ready": True,
             "people_x": 0,
+            "capacity": 10,
         }
 
         self.next_lift_id += 1
