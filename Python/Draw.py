@@ -84,7 +84,7 @@ def draw_building(
 
     for floor in range(floors):
         y = TOP_MARGIN + floor * floor_height
-        label = FONT.render(f"Floor {floors - floor - 1}", True, WHITE)
+        label = FONT.render(f"Floor {floors - floor}", True, (30, 30, 30))
         screen.blit(label, (20, y + 5))
 
     for floor in range(floors + 1):
@@ -174,9 +174,6 @@ def draw_information_panel(screen, info_panel, font, simulation):
     draw_filter_button(all_rect, "Alle liften", lift_filter == "all")
     draw_filter_button(normal_rect, "Normale liften", lift_filter == "normal")
     draw_filter_button(fast_rect, "Snelle liften", lift_filter == "fast")
-
-    time_text = font.render(f"Tijd: {simulation.get_time_string()}", True, (255, 255, 255))
-    screen.blit(time_text, (20, 20))
 
     draw_wait_time_graph(screen, panel, font, simulation, info_panel.active_filter)
     draw_people_graph(screen, panel, font, simulation, info_panel.active_filter)
